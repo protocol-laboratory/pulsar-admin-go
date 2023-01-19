@@ -18,7 +18,9 @@
 package padmin
 
 import (
+	"errors"
 	"io"
+	"net/http"
 )
 
 func StatusNok(code int) bool {
@@ -27,6 +29,30 @@ func StatusNok(code int) bool {
 
 func StatusOk(code int) bool {
 	return code >= 200 && code < 300
+}
+
+func HttpCheck(response *http.Response) error {
+	defer response.Body.Close()
+	if StatusNok(response.StatusCode) {
+		str, err := ReadAll(response.Body)
+		if err != nil {
+			return err
+		}
+		return errors.New(str)
+	}
+	return nil
+}
+
+func HttpCheckReadBytes(response *http.Response) ([]byte, error) {
+	defer response.Body.Close()
+	if StatusNok(response.StatusCode) {
+		str, err := ReadAll(response.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(str)
+	}
+	return io.ReadAll(response.Body)
 }
 
 func ReadAll(r io.Reader) (string, error) {

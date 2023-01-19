@@ -19,7 +19,6 @@ package padmin
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 )
 
@@ -37,15 +36,7 @@ func (t *Tenants) Create(tenantName string, info TenantInfo) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (t *Tenants) Delete(tenantName string) error {
@@ -54,15 +45,7 @@ func (t *Tenants) Delete(tenantName string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (t *Tenants) List() ([]string, error) {

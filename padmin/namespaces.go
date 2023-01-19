@@ -19,7 +19,6 @@ package padmin
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 )
@@ -37,15 +36,7 @@ func (n *Namespaces) Create(tenant, namespace string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (n *Namespaces) Delete(tenant, namespace string) error {
@@ -53,15 +44,7 @@ func (n *Namespaces) Delete(tenant, namespace string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (n *Namespaces) List(tenant string) ([]string, error) {
