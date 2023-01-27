@@ -19,7 +19,6 @@ package padmin
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 )
 
@@ -37,15 +36,7 @@ func (p *PersistentTopics) CreateNonPartitioned(tenant, namespace, topic string)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (p *PersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
@@ -54,15 +45,7 @@ func (p *PersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (p *PersistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
@@ -71,16 +54,12 @@ func (p *PersistentTopics) ListNonPartitioned(tenant, namespace string) ([]strin
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(str)
+	data, err := HttpCheckReadBytes(resp)
+	if err != nil {
+		return nil, err
 	}
 	var topics []string
-	if err := json.NewDecoder(resp.Body).Decode(&topics); err != nil {
+	if err := json.Unmarshal(data, &topics); err != nil {
 		return nil, err
 	}
 	return topics, nil
@@ -92,15 +71,7 @@ func (p *PersistentTopics) CreatePartitioned(tenant, namespace, topic string, nu
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (p *PersistentTopics) DeletePartitioned(tenant, namespace, topic string) error {
@@ -109,15 +80,7 @@ func (p *PersistentTopics) DeletePartitioned(tenant, namespace, topic string) er
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (p *PersistentTopics) ListPartitioned(tenant, namespace string) ([]string, error) {
@@ -126,16 +89,12 @@ func (p *PersistentTopics) ListPartitioned(tenant, namespace string) ([]string, 
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(str)
+	data, err := HttpCheckReadBytes(resp)
+	if err != nil {
+		return nil, err
 	}
 	var topics []string
-	if err := json.NewDecoder(resp.Body).Decode(&topics); err != nil {
+	if err := json.Unmarshal(data, &topics); err != nil {
 		return nil, err
 	}
 	return topics, nil

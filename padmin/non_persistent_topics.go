@@ -19,9 +19,7 @@ package padmin
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 )
 
 type NonPersistentTopics struct {
@@ -38,15 +36,7 @@ func (n *NonPersistentTopics) CreateNonPartitioned(tenant, namespace, topic stri
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (n *NonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
@@ -55,15 +45,7 @@ func (n *NonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic stri
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return err
-		}
-		return errors.New(str)
-	}
-	return nil
+	return HttpCheck(resp)
 }
 
 func (n *NonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
@@ -72,15 +54,7 @@ func (n *NonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]st
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	if !StatusOk(resp.StatusCode) {
-		str, err := ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, errors.New(str)
-	}
-	data, err := io.ReadAll(resp.Body)
+	data, err := HttpCheckReadBytes(resp)
 	if err != nil {
 		return nil, err
 	}
