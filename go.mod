@@ -1,4 +1,4 @@
-module pulsar-admin-go
+module github.com/protocol-laboratory/pulsar-admin-go
 
 go 1.18
 
