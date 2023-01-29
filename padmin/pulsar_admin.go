@@ -20,9 +20,13 @@ package padmin
 import "strconv"
 
 type Config struct {
-	Host      string
-	Port      int
 	urlPrefix string
+	// Host pulsar service address, default localhost
+	Host string
+	// Port pulsar service port, default 8080
+	Port int
+	// ConnectionTimeout connect timeout, default 0, zero means no timeout
+	ConnectionTimeout int64
 }
 
 type PulsarAdmin struct {
