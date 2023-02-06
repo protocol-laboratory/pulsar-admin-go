@@ -23,15 +23,21 @@ import (
 	"io"
 )
 
-type Namespaces struct {
+type INamespaces interface {
+	Create(tenant, namespace string) error
+	Delete(tenant, namespace string) error
+	List(tenant string) ([]string, error)
+}
+
+type namespaces struct {
 	cli HttpClient
 }
 
-func newNamespaces(cli HttpClient) *Namespaces {
-	return &Namespaces{cli: cli}
+func newNamespaces(cli HttpClient) *namespaces {
+	return &namespaces{cli: cli}
 }
 
-func (n *Namespaces) Create(tenant, namespace string) error {
+func (n *namespaces) Create(tenant, namespace string) error {
 	resp, err := n.cli.Put(fmt.Sprintf(UrlNamespacesFormat, tenant, namespace), nil)
 	if err != nil {
 		return err
@@ -39,7 +45,7 @@ func (n *Namespaces) Create(tenant, namespace string) error {
 	return HttpCheck(resp)
 }
 
-func (n *Namespaces) Delete(tenant, namespace string) error {
+func (n *namespaces) Delete(tenant, namespace string) error {
 	resp, err := n.cli.Delete(fmt.Sprintf(UrlNamespacesFormat, tenant, namespace))
 	if err != nil {
 		return err
@@ -47,7 +53,7 @@ func (n *Namespaces) Delete(tenant, namespace string) error {
 	return HttpCheck(resp)
 }
 
-func (n *Namespaces) List(tenant string) ([]string, error) {
+func (n *namespaces) List(tenant string) ([]string, error) {
 	resp, err := n.cli.Get(fmt.Sprintf(UrlNamespacesFormat, tenant, ""))
 	if err != nil {
 		return nil, err

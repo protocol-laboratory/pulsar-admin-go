@@ -22,15 +22,29 @@ import (
 	"fmt"
 )
 
-type PersistentTopics struct {
+type ITopics interface {
+	CreateNonPartitioned(tenant, namespace, topic string) error
+	CreatePartitioned(tenant, namespace, topic string, numPartitions int) error
+	DeleteNonPartitioned(tenant, namespace, topic string) error
+	DeletePartitioned(tenant, namespace, topic string) error
+	ListNonPartitioned(tenant, namespace string) ([]string, error)
+	ListPartitioned(tenant, namespace string) ([]string, error)
+	ListNamespaceTopics(tenant, namespace string) ([]string, error)
+}
+
+type IPersistentTopics interface {
+	ITopics
+}
+
+type persistentTopics struct {
 	cli HttpClient
 }
 
-func newPersistentTopics(cli HttpClient) *PersistentTopics {
-	return &PersistentTopics{cli: cli}
+func newPersistentTopics(cli HttpClient) *persistentTopics {
+	return &persistentTopics{cli: cli}
 }
 
-func (p *PersistentTopics) CreateNonPartitioned(tenant, namespace, topic string) error {
+func (p *persistentTopics) CreateNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := p.cli.Put(path, nil)
 	if err != nil {
@@ -39,7 +53,7 @@ func (p *PersistentTopics) CreateNonPartitioned(tenant, namespace, topic string)
 	return HttpCheck(resp)
 }
 
-func (p *PersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
+func (p *persistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := p.cli.Delete(path)
 	if err != nil {
@@ -48,7 +62,7 @@ func (p *PersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string)
 	return HttpCheck(resp)
 }
 
-func (p *PersistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
+func (p *persistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
 	path := fmt.Sprintf(UrlPersistentNamespaceFormat, tenant, namespace)
 	resp, err := p.cli.Get(path)
 	if err != nil {
@@ -65,7 +79,7 @@ func (p *PersistentTopics) ListNonPartitioned(tenant, namespace string) ([]strin
 	return topics, nil
 }
 
-func (p *PersistentTopics) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
+func (p *persistentTopics) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
 	path := fmt.Sprintf(UrlPersistentPartitionedTopicFormat, tenant, namespace, topic)
 	resp, err := p.cli.Put(path, numPartitions)
 	if err != nil {
@@ -74,7 +88,7 @@ func (p *PersistentTopics) CreatePartitioned(tenant, namespace, topic string, nu
 	return HttpCheck(resp)
 }
 
-func (p *PersistentTopics) DeletePartitioned(tenant, namespace, topic string) error {
+func (p *persistentTopics) DeletePartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlPersistentPartitionedTopicFormat, tenant, namespace, topic)
 	resp, err := p.cli.Delete(path)
 	if err != nil {
@@ -83,7 +97,8 @@ func (p *PersistentTopics) DeletePartitioned(tenant, namespace, topic string) er
 	return HttpCheck(resp)
 }
 
-func (p *PersistentTopics) ListPartitioned(tenant, namespace string) ([]string, error) {
+// ListPartitioned Get the list of partitioned topics under a namespace.
+func (p *persistentTopics) ListPartitioned(tenant, namespace string) ([]string, error) {
 	path := fmt.Sprintf(UrlPersistentPartitionedNamespaceFormat, tenant, namespace)
 	resp, err := p.cli.Get(path)
 	if err != nil {
@@ -95,6 +110,20 @@ func (p *PersistentTopics) ListPartitioned(tenant, namespace string) ([]string, 
 	}
 	var topics []string
 	if err := json.Unmarshal(data, &topics); err != nil {
+		return nil, err
+	}
+	return topics, nil
+}
+
+// ListNamespaceTopics Get the list of topics under a namespace.
+func (p *persistentTopics) ListNamespaceTopics(tenant, namespace string) ([]string, error) {
+	url := fmt.Sprintf(UrlPersistentNamespaceFormat, tenant, namespace)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var topics []string
+	if err := EasyReader(resp, &topics); err != nil {
 		return nil, err
 	}
 	return topics, nil

@@ -94,3 +94,23 @@ func TestPersistentPartitionedTopics(t *testing.T) {
 	err = admin.Tenants.Delete(testTenant)
 	require.Nil(t, err)
 }
+
+func Test_persistentTopics_ListNamespaceTopics(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListNamespaceTopics(testTenant, testNs)
+	require.Nil(t, err)
+	t.Logf("topic list: %v", topicList)
+}

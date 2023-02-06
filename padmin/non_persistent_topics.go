@@ -22,15 +22,19 @@ import (
 	"fmt"
 )
 
-type NonPersistentTopics struct {
+type INonPersistentTopics interface {
+	ITopics
+}
+
+type nonPersistentTopics struct {
 	cli HttpClient
 }
 
-func newNonPersistentTopics(cli HttpClient) *NonPersistentTopics {
-	return &NonPersistentTopics{cli: cli}
+func newNonPersistentTopics(cli HttpClient) *nonPersistentTopics {
+	return &nonPersistentTopics{cli: cli}
 }
 
-func (n *NonPersistentTopics) CreateNonPartitioned(tenant, namespace, topic string) error {
+func (n *nonPersistentTopics) CreateNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlNonPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := n.cli.Put(path, nil)
 	if err != nil {
@@ -39,7 +43,7 @@ func (n *NonPersistentTopics) CreateNonPartitioned(tenant, namespace, topic stri
 	return HttpCheck(resp)
 }
 
-func (n *NonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
+func (n *nonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlNonPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := n.cli.Delete(path)
 	if err != nil {
@@ -48,7 +52,7 @@ func (n *NonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic stri
 	return HttpCheck(resp)
 }
 
-func (n *NonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
+func (n *nonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
 	path := fmt.Sprintf(UrlNonPersistentNamespaceFormat, tenant, namespace)
 	resp, err := n.cli.Get(path)
 	if err != nil {
@@ -61,6 +65,50 @@ func (n *NonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]st
 	topics := make([]string, 0)
 	err = json.Unmarshal(data, &topics)
 	if err != nil {
+		return nil, err
+	}
+	return topics, nil
+}
+
+func (n *nonPersistentTopics) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
+	path := fmt.Sprintf(UrlNonPersistentPartitionedTopicFormat, tenant, namespace, topic)
+	resp, err := n.cli.Put(path, numPartitions)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *nonPersistentTopics) ListPartitioned(tenant, namespace string) ([]string, error) {
+	path := fmt.Sprintf(UrlNonPersistentPartitionedNamespaceFormat, tenant, namespace)
+	resp, err := n.cli.Get(path)
+	if err != nil {
+		return nil, err
+	}
+	var topics []string
+	if err := EasyReader(resp, &topics); err != nil {
+		return nil, err
+	}
+	return topics, nil
+}
+
+func (n *nonPersistentTopics) DeletePartitioned(tenant, namespace, topic string) error {
+	path := fmt.Sprintf(UrlNonPersistentPartitionedTopicFormat, tenant, namespace, topic)
+	resp, err := n.cli.Delete(path)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *nonPersistentTopics) ListNamespaceTopics(tenant, namespace string) ([]string, error) {
+	url := fmt.Sprintf(UrlNonPersistentNamespaceFormat, tenant, namespace)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var topics []string
+	if err := EasyReader(resp, &topics); err != nil {
 		return nil, err
 	}
 	return topics, nil

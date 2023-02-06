@@ -22,15 +22,19 @@ import (
 	"io"
 )
 
-type Clusters struct {
+type IClusters interface {
+	List() ([]string, error)
+}
+
+type clusters struct {
 	cli HttpClient
 }
 
-func newClusters(cli HttpClient) *Clusters {
-	return &Clusters{cli: cli}
+func newClusters(cli HttpClient) *clusters {
+	return &clusters{cli: cli}
 }
 
-func (c *Clusters) List() ([]string, error) {
+func (c *clusters) List() ([]string, error) {
 	resp, err := c.cli.Get(UrlClusters)
 	if err != nil {
 		return nil, err

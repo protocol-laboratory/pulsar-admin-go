@@ -58,3 +58,37 @@ func TestNonPersistentTopics(t *testing.T) {
 	err = admin.Tenants.Delete(testTenant)
 	require.Nil(t, err)
 }
+
+func Test_nonPersistentTopics_CreatePartitionedAndListPartitioned(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.NonPersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.NonPersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	t.Logf("get list: %v", topicList)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should be 1")
+	}
+	err = admin.NonPersistentTopics.DeletePartitioned(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	topicList, err = admin.NonPersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 0 {
+		t.Fatal("topic list should be empty")
+	}
+	err = admin.Namespaces.Delete(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.Tenants.Delete(testTenant)
+	require.Nil(t, err)
+}
