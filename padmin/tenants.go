@@ -22,15 +22,21 @@ import (
 	"io"
 )
 
-type Tenants struct {
+type Tenants interface {
+	Create(tenantName string, info TenantInfo) error
+	Delete(tenantName string) error
+	List() ([]string, error)
+}
+
+type TenantsImpl struct {
 	cli HttpClient
 }
 
-func newTenants(cli HttpClient) *Tenants {
-	return &Tenants{cli: cli}
+func newTenants(cli HttpClient) *TenantsImpl {
+	return &TenantsImpl{cli: cli}
 }
 
-func (t *Tenants) Create(tenantName string, info TenantInfo) error {
+func (t *TenantsImpl) Create(tenantName string, info TenantInfo) error {
 	path := UrlTenants + "/" + tenantName
 	resp, err := t.cli.Put(path, info)
 	if err != nil {
@@ -39,7 +45,7 @@ func (t *Tenants) Create(tenantName string, info TenantInfo) error {
 	return HttpCheck(resp)
 }
 
-func (t *Tenants) Delete(tenantName string) error {
+func (t *TenantsImpl) Delete(tenantName string) error {
 	url := UrlTenants + "/" + tenantName
 	resp, err := t.cli.Delete(url)
 	if err != nil {
@@ -48,7 +54,7 @@ func (t *Tenants) Delete(tenantName string) error {
 	return HttpCheck(resp)
 }
 
-func (t *Tenants) List() ([]string, error) {
+func (t *TenantsImpl) List() ([]string, error) {
 	resp, err := t.cli.Get(UrlTenants)
 	if err != nil {
 		return nil, err

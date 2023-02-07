@@ -30,11 +30,11 @@ type Config struct {
 }
 
 type PulsarAdmin struct {
-	Clusters            *Clusters
-	Tenants             *Tenants
-	Namespaces          *Namespaces
-	PersistentTopics    *PersistentTopics
-	NonPersistentTopics *NonPersistentTopics
+	Clusters            Clusters
+	Tenants             Tenants
+	Namespaces          Namespaces
+	PersistentTopics    PersistentTopics
+	NonPersistentTopics NonPersistentTopics
 }
 
 func NewDefaultPulsarAdmin() (*PulsarAdmin, error) {

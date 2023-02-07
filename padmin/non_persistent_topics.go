@@ -22,15 +22,15 @@ import (
 	"fmt"
 )
 
-type NonPersistentTopics struct {
+type NonPersistentTopics interface {
+	Topics
+}
+
+type NonPersistentTopicsImpl struct {
 	cli HttpClient
 }
 
-func newNonPersistentTopics(cli HttpClient) *NonPersistentTopics {
-	return &NonPersistentTopics{cli: cli}
-}
-
-func (n *NonPersistentTopics) CreateNonPartitioned(tenant, namespace, topic string) error {
+func (n *NonPersistentTopicsImpl) CreateNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlNonPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := n.cli.Put(path, nil)
 	if err != nil {
@@ -39,7 +39,7 @@ func (n *NonPersistentTopics) CreateNonPartitioned(tenant, namespace, topic stri
 	return HttpCheck(resp)
 }
 
-func (n *NonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic string) error {
+func (n *NonPersistentTopicsImpl) DeleteNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlNonPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := n.cli.Delete(path)
 	if err != nil {
@@ -48,7 +48,7 @@ func (n *NonPersistentTopics) DeleteNonPartitioned(tenant, namespace, topic stri
 	return HttpCheck(resp)
 }
 
-func (n *NonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]string, error) {
+func (n *NonPersistentTopicsImpl) ListNonPartitioned(tenant, namespace string) ([]string, error) {
 	path := fmt.Sprintf(UrlNonPersistentNamespaceFormat, tenant, namespace)
 	resp, err := n.cli.Get(path)
 	if err != nil {
@@ -64,4 +64,23 @@ func (n *NonPersistentTopics) ListNonPartitioned(tenant, namespace string) ([]st
 		return nil, err
 	}
 	return topics, nil
+}
+
+func (n *NonPersistentTopicsImpl) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (n *NonPersistentTopicsImpl) DeletePartitioned(tenant, namespace, topic string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (n *NonPersistentTopicsImpl) ListPartitioned(tenant, namespace string) ([]string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func newNonPersistentTopics(cli HttpClient) *NonPersistentTopicsImpl {
+	return &NonPersistentTopicsImpl{cli: cli}
 }
