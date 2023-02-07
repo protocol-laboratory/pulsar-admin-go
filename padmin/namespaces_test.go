@@ -37,3 +37,27 @@ func TestNamespaces(t *testing.T) {
 	err = admin.Namespaces.Delete("public", testNs)
 	require.Nil(t, err)
 }
+
+func TestNamespacesImpl_OperateNamespaceRetention(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testNs := RandStr(8)
+	err := admin.Namespaces.Create("public", testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.SetNamespaceRetention("public", testNs, &RetentionConfiguration{
+		RetentionSizeInMB:      100,
+		RetentionTimeInMinutes: 10,
+	})
+	require.Nil(t, err)
+	cfg, err := admin.Namespaces.GetNamespaceRetention("public", testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 100, cfg.RetentionSizeInMB)
+	require.EqualValues(t, 10, cfg.RetentionTimeInMinutes)
+	err = admin.Namespaces.RemoveNamespaceRetention("public", testNs)
+	require.Nil(t, err)
+	cfg, err = admin.Namespaces.GetNamespaceRetention("public", testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 0, cfg.RetentionSizeInMB)
+	require.EqualValues(t, 0, cfg.RetentionTimeInMinutes)
+}

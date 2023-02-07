@@ -27,6 +27,7 @@ type Namespaces interface {
 	Create(tenant, namespace string) error
 	Delete(tenant, namespace string) error
 	List(tenant string) ([]string, error)
+	NamespaceRetention
 }
 
 type NamespacesImpl struct {
@@ -69,4 +70,38 @@ func (n *NamespacesImpl) List(tenant string) ([]string, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+func (n *NamespacesImpl) GetNamespaceRetention(tenant, namespace string) (*RetentionConfiguration, error) {
+	url := fmt.Sprintf(UrlNamespaceRetentionFormat, tenant, namespace)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var retention = new(RetentionConfiguration)
+	if err := EasyReader(resp, retention); err != nil {
+		return nil, err
+	}
+	return retention, nil
+}
+
+func (n *NamespacesImpl) SetNamespaceRetention(tenant, namespace string, cfg *RetentionConfiguration) error {
+	if cfg == nil {
+		return fmt.Errorf("config empty")
+	}
+	url := fmt.Sprintf(UrlNamespaceRetentionFormat, tenant, namespace)
+	resp, err := n.cli.Post(url, cfg)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NamespacesImpl) RemoveNamespaceRetention(tenant, namespace string) error {
+	url := fmt.Sprintf(UrlNamespaceRetentionFormat, tenant, namespace)
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
 }
