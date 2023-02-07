@@ -19,14 +19,29 @@ package padmin
 
 const (
 	// UrlPath for the Admin API
-	UrlPath                                 = "/admin/v2"
-	UrlClusters                             = UrlPath + "/clusters"
-	UrlTenants                              = UrlPath + "/tenants"
-	UrlNamespacesFormat                     = UrlPath + "/namespaces/%s/%s"
-	UrlNonPersistentNamespaceFormat         = UrlPath + "/non-persistent/%s/%s"
-	UrlNonPersistentTopicFormat             = UrlPath + "/non-persistent/%s/%s/%s"
+	UrlPath               = "/admin/v2"
+	UrlBookiesAll         = UrlPath + "/bookies/all"
+	UrlBookiesRacksInfo   = UrlPath + "/bookies/racks-info"
+	UrlBookiesRacksFormat = UrlPath + "/bookies/racks-info/%s"
+	UrlClusters           = UrlPath + "/clusters"
+	UrlTenants            = UrlPath + "/tenants"
+	UrlNamespacesFormat   = UrlPath + "/namespaces/%s/%s"
+)
+
+// persistent
+const (
 	UrlPersistentNamespaceFormat            = UrlPath + "/persistent/%s/%s"
 	UrlPersistentTopicFormat                = UrlPath + "/persistent/%s/%s/%s"
 	UrlPersistentPartitionedNamespaceFormat = UrlPath + "/persistent/%s/%s/partitioned"
 	UrlPersistentPartitionedTopicFormat     = UrlPath + "/persistent/%s/%s/%s/partitions"
+	UrlPersistentPartitionedRetentionFormat = UrlPath + "/persistent/%s/%s/%s/retention"
+)
+
+// non-persistent
+const (
+	UrlNonPersistentNamespaceFormat            = UrlPath + "/non-persistent/%s/%s"
+	UrlNonPersistentTopicFormat                = UrlPath + "/non-persistent/%s/%s/%s"
+	UrlNonPersistentPartitionedTopicFormat     = UrlPath + "/non-persistent/%s/%s/%s/partitions"
+	UrlNonPersistentPartitionedNamespaceFormat = UrlPath + "/non-persistent/%s/%s/partitioned"
+	UrlNonPersistentPartitionedRetentionFormat = UrlPath + "/non-persistent/%s/%s/%s/retention"
 )

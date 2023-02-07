@@ -17,35 +17,11 @@
 
 package padmin
 
-import (
-	"encoding/json"
-	"io"
-)
-
-type Clusters interface {
-	List() ([]string, error)
-}
-
-type ClustersImpl struct {
-	cli HttpClient
-}
-
-func newClusters(cli HttpClient) *ClustersImpl {
-	return &ClustersImpl{cli: cli}
-}
-
-func (c *ClustersImpl) List() ([]string, error) {
-	resp, err := c.cli.Get(UrlClusters)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	var data []byte
-	data, err = io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]string, 0)
-	err = json.Unmarshal(data, &result)
-	return result, err
+type Topics interface {
+	CreateNonPartitioned(tenant, namespace, topic string) error
+	CreatePartitioned(tenant, namespace, topic string, numPartitions int) error
+	DeleteNonPartitioned(tenant, namespace, topic string) error
+	DeletePartitioned(tenant, namespace, topic string) error
+	ListNonPartitioned(tenant, namespace string) ([]string, error)
+	ListPartitioned(tenant, namespace string) ([]string, error)
 }
