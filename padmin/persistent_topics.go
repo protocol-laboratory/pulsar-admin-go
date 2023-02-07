@@ -104,3 +104,43 @@ func (p *PersistentTopicsImpl) ListPartitioned(tenant, namespace string) ([]stri
 	}
 	return topics, nil
 }
+
+// ListNamespaceTopics Get the list of topics under a namespace.
+func (p *PersistentTopicsImpl) ListNamespaceTopics(tenant, namespace string) ([]string, error) {
+	url := fmt.Sprintf(UrlPersistentNamespaceFormat, tenant, namespace)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var topics []string
+	if err := EasyReader(resp, &topics); err != nil {
+		return nil, err
+	}
+	return topics, nil
+}
+
+func (p *PersistentTopicsImpl) GetPartitionedMetadata(tenant, namespace, topic string) (*PartitionedMetadata, error) {
+	url := fmt.Sprintf(UrlPersistentPartitionedTopicFormat, tenant, namespace, topic)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var metadata = new(PartitionedMetadata)
+	if err := EasyReader(resp, metadata); err != nil {
+		return nil, err
+	}
+	return metadata, nil
+}
+
+func (p *PersistentTopicsImpl) GetRetention(tenant, namespace, topic string) (*PartitionedRetention, error) {
+	url := fmt.Sprintf(UrlPersistentPartitionedRetentionFormat, tenant, namespace, topic)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var retention = new(PartitionedRetention)
+	if err := EasyReader(resp, retention); err != nil {
+		return nil, err
+	}
+	return retention, nil
+}
