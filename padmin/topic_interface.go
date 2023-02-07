@@ -17,6 +17,7 @@
 
 package padmin
 
+// Topics persistent topic and non-persistent topic interface
 type Topics interface {
 	CreateNonPartitioned(tenant, namespace, topic string) error
 	CreatePartitioned(tenant, namespace, topic string, numPartitions int) error
@@ -24,4 +25,19 @@ type Topics interface {
 	DeletePartitioned(tenant, namespace, topic string) error
 	ListNonPartitioned(tenant, namespace string) ([]string, error)
 	ListPartitioned(tenant, namespace string) ([]string, error)
+	ListNamespaceTopics(tenant, namespace string) ([]string, error)
+	GetPartitionedMetadata(tenant, namespace, topic string) (*PartitionedMetadata, error)
+	GetRetention(tenant, namespace, topic string) (*PartitionedRetention, error)
+}
+
+// PartitionedMetadata partitioned topic metadata
+type PartitionedMetadata struct {
+	Deleted    bool  `json:"deleted"`
+	Partitions int64 `json:"partitions"`
+}
+
+// PartitionedRetention retention configuration for specified topic
+type PartitionedRetention struct {
+	RetentionSizeInMB      int64 `json:"retentionSizeInMB"`
+	RetentionTimeInMinutes int64 `json:"retentionTimeInMinutes"`
 }

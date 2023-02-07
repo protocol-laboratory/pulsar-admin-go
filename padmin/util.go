@@ -18,7 +18,9 @@
 package padmin
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -58,4 +60,15 @@ func HttpCheckReadBytes(response *http.Response) ([]byte, error) {
 func ReadAll(r io.Reader) (string, error) {
 	bytes, err := io.ReadAll(r)
 	return string(bytes), err
+}
+
+func EasyReader(resp *http.Response, ptr interface{}) error {
+	body, err := HttpCheckReadBytes(resp)
+	if err != nil {
+		return err
+	}
+	if len(body) == 0 {
+		return fmt.Errorf("response body empty")
+	}
+	return json.Unmarshal(body, ptr)
 }

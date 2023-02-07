@@ -94,3 +94,80 @@ func TestPersistentPartitionedTopics(t *testing.T) {
 	err = admin.Tenants.Delete(testTenant)
 	require.Nil(t, err)
 }
+
+func Test_persistentTopics_ListNamespaceTopics(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListNamespaceTopics(testTenant, testNs)
+	require.Nil(t, err)
+	t.Logf("topic list: %v", topicList)
+}
+
+func Test_persistentTopics_GetPartitionedMetadata(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	metadata, err := admin.PersistentTopics.GetPartitionedMetadata(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	require.EqualValues(t, metadata.Partitions, 2)
+	require.Equal(t, metadata.Deleted, false)
+}
+
+func Test_persistentTopics_GetRetention(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	retention, err := admin.PersistentTopics.GetRetention(testTenant, testNs, testTopic)
+	t.Logf("get err: %v", err)
+	t.Logf("get retention: %v", retention)
+}

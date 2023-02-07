@@ -30,6 +30,10 @@ type NonPersistentTopicsImpl struct {
 	cli HttpClient
 }
 
+func newNonPersistentTopics(cli HttpClient) *NonPersistentTopicsImpl {
+	return &NonPersistentTopicsImpl{cli: cli}
+}
+
 func (n *NonPersistentTopicsImpl) CreateNonPartitioned(tenant, namespace, topic string) error {
 	path := fmt.Sprintf(UrlNonPersistentTopicFormat, tenant, namespace, topic)
 	resp, err := n.cli.Put(path, nil)
@@ -66,21 +70,73 @@ func (n *NonPersistentTopicsImpl) ListNonPartitioned(tenant, namespace string) (
 	return topics, nil
 }
 
-func (n *NonPersistentTopicsImpl) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
-	//TODO implement me
-	panic("implement me")
-}
 
-func (n *NonPersistentTopicsImpl) DeletePartitioned(tenant, namespace, topic string) error {
-	//TODO implement me
-	panic("implement me")
+func (n *NonPersistentTopicsImpl) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
+	path := fmt.Sprintf(UrlNonPersistentPartitionedTopicFormat, tenant, namespace, topic)
+	resp, err := n.cli.Put(path, numPartitions)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
 }
 
 func (n *NonPersistentTopicsImpl) ListPartitioned(tenant, namespace string) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+	path := fmt.Sprintf(UrlNonPersistentPartitionedNamespaceFormat, tenant, namespace)
+	resp, err := n.cli.Get(path)
+	if err != nil {
+		return nil, err
+	}
+	var topics []string
+	if err := EasyReader(resp, &topics); err != nil {
+		return nil, err
+	}
+	return topics, nil
 }
 
-func newNonPersistentTopics(cli HttpClient) *NonPersistentTopicsImpl {
-	return &NonPersistentTopicsImpl{cli: cli}
+func (n *NonPersistentTopicsImpl) DeletePartitioned(tenant, namespace, topic string) error {
+	path := fmt.Sprintf(UrlNonPersistentPartitionedTopicFormat, tenant, namespace, topic)
+	resp, err := n.cli.Delete(path)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) ListNamespaceTopics(tenant, namespace string) ([]string, error) {
+	url := fmt.Sprintf(UrlNonPersistentNamespaceFormat, tenant, namespace)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var topics []string
+	if err := EasyReader(resp, &topics); err != nil {
+		return nil, err
+	}
+	return topics, nil
+}
+
+func (n *NonPersistentTopicsImpl) GetPartitionedMetadata(tenant, namespace, topic string) (*PartitionedMetadata, error) {
+	url := fmt.Sprintf(UrlNonPersistentPartitionedTopicFormat, tenant, namespace, topic)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var metadata = new(PartitionedMetadata)
+	if err := EasyReader(resp, metadata); err != nil {
+		return nil, err
+	}
+	return metadata, nil
+}
+
+func (n *NonPersistentTopicsImpl) GetRetention(tenant, namespace, topic string) (*PartitionedRetention, error) {
+	url := fmt.Sprintf(UrlNonPersistentPartitionedRetentionFormat, tenant, namespace, topic)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var retention = new(PartitionedRetention)
+	if err := EasyReader(resp, retention); err != nil {
+		return nil, err
+	}
+	return retention, nil
 }
