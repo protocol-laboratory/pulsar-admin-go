@@ -1,5 +1,8 @@
 # pulsar-admin-go
 This project is a Go client library for the Apache Pulsar Admin API.<br/>
+## Requirements
+- Go 1.18+
+
 ## usage
 
 ```go
