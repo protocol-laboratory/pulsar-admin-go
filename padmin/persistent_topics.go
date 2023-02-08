@@ -132,15 +132,36 @@ func (p *PersistentTopicsImpl) GetPartitionedMetadata(tenant, namespace, topic s
 	return metadata, nil
 }
 
-func (p *PersistentTopicsImpl) GetRetention(tenant, namespace, topic string) (*PartitionedRetention, error) {
+func (p *PersistentTopicsImpl) GetTopicRetention(tenant, namespace, topic string) (*RetentionConfiguration, error) {
 	url := fmt.Sprintf(UrlPersistentPartitionedRetentionFormat, tenant, namespace, topic)
 	resp, err := p.cli.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	var retention = new(PartitionedRetention)
+	var retention = new(RetentionConfiguration)
 	if err := EasyReader(resp, retention); err != nil {
 		return nil, err
 	}
 	return retention, nil
+}
+
+func (p *PersistentTopicsImpl) SetTopicRetention(tenant, namespace, topic string, cfg *RetentionConfiguration) error {
+	if cfg == nil {
+		return fmt.Errorf("config empty")
+	}
+	url := fmt.Sprintf(UrlPersistentPartitionedRetentionFormat, tenant, namespace, topic)
+	resp, err := p.cli.Post(url, cfg)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (p *PersistentTopicsImpl) RemoveTopicRetention(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlPersistentPartitionedRetentionFormat, tenant, namespace, topic)
+	resp, err := p.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
 }

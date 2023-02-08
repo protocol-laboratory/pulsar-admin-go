@@ -70,7 +70,6 @@ func (n *NonPersistentTopicsImpl) ListNonPartitioned(tenant, namespace string) (
 	return topics, nil
 }
 
-
 func (n *NonPersistentTopicsImpl) CreatePartitioned(tenant, namespace, topic string, numPartitions int) error {
 	path := fmt.Sprintf(UrlNonPersistentPartitionedTopicFormat, tenant, namespace, topic)
 	resp, err := n.cli.Put(path, numPartitions)
@@ -128,15 +127,36 @@ func (n *NonPersistentTopicsImpl) GetPartitionedMetadata(tenant, namespace, topi
 	return metadata, nil
 }
 
-func (n *NonPersistentTopicsImpl) GetRetention(tenant, namespace, topic string) (*PartitionedRetention, error) {
+func (n *NonPersistentTopicsImpl) GetTopicRetention(tenant, namespace, topic string) (*RetentionConfiguration, error) {
 	url := fmt.Sprintf(UrlNonPersistentPartitionedRetentionFormat, tenant, namespace, topic)
 	resp, err := n.cli.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	var retention = new(PartitionedRetention)
+	var retention = new(RetentionConfiguration)
 	if err := EasyReader(resp, retention); err != nil {
 		return nil, err
 	}
 	return retention, nil
+}
+
+func (n *NonPersistentTopicsImpl) SetTopicRetention(tenant, namespace, topic string, cfg *RetentionConfiguration) error {
+	if cfg == nil {
+		return fmt.Errorf("config empty")
+	}
+	url := fmt.Sprintf(UrlNonPersistentPartitionedRetentionFormat, tenant, namespace, topic)
+	resp, err := n.cli.Post(url, cfg)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) RemoveTopicRetention(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlNonPersistentPartitionedRetentionFormat, tenant, namespace, topic)
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
 }

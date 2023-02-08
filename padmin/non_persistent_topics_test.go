@@ -19,6 +19,7 @@ package padmin
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -91,4 +92,43 @@ func Test_nonPersistentTopics_CreatePartitionedAndListPartitioned(t *testing.T) 
 	require.Nil(t, err)
 	err = admin.Tenants.Delete(testTenant)
 	require.Nil(t, err)
+}
+
+func TestNonPersistentTopicsImpl_OperateTopicRetention(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.NonPersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.NonPersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("non-persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	err = admin.Namespaces.SetNamespaceRetention(testTenant, testNs, &RetentionConfiguration{
+		RetentionSizeInMB:      100,
+		RetentionTimeInMinutes: 10,
+	})
+	require.Nil(t, err)
+	cfg, err := admin.Namespaces.GetNamespaceRetention(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 100, cfg.RetentionSizeInMB)
+	require.EqualValues(t, 10, cfg.RetentionTimeInMinutes)
+	err = admin.NonPersistentTopics.SetTopicRetention(testTenant, testNs, testTopic, &RetentionConfiguration{
+		RetentionSizeInMB:      50,
+		RetentionTimeInMinutes: 5,
+	})
+	assert.Error(t, err)
 }

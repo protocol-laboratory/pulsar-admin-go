@@ -28,6 +28,11 @@ const (
 	UrlNamespacesFormat   = UrlPath + "/namespaces/%s/%s"
 )
 
+// namespace
+const (
+	UrlNamespaceRetentionFormat = UrlPath + "/namespaces/%s/%s/retention"
+)
+
 // persistent
 const (
 	UrlPersistentNamespaceFormat            = UrlPath + "/persistent/%s/%s"

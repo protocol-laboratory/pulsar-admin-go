@@ -20,7 +20,6 @@ package padmin
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -68,7 +67,7 @@ func EasyReader(resp *http.Response, ptr interface{}) error {
 		return err
 	}
 	if len(body) == 0 {
-		return fmt.Errorf("response body empty")
+		return nil
 	}
 	return json.Unmarshal(body, ptr)
 }

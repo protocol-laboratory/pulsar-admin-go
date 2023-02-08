@@ -19,6 +19,7 @@ package padmin
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -144,7 +145,7 @@ func Test_persistentTopics_GetPartitionedMetadata(t *testing.T) {
 	require.Equal(t, metadata.Deleted, false)
 }
 
-func Test_persistentTopics_GetRetention(t *testing.T) {
+func Test_persistentTopics_OperateTopicRetention(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
@@ -167,7 +168,18 @@ func Test_persistentTopics_GetRetention(t *testing.T) {
 	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
 		t.Fatal("topic name should be equal")
 	}
-	retention, err := admin.PersistentTopics.GetRetention(testTenant, testNs, testTopic)
-	t.Logf("get err: %v", err)
-	t.Logf("get retention: %v", retention)
+	err = admin.Namespaces.SetNamespaceRetention(testTenant, testNs, &RetentionConfiguration{
+		RetentionSizeInMB:      100,
+		RetentionTimeInMinutes: 10,
+	})
+	require.Nil(t, err)
+	cfg, err := admin.Namespaces.GetNamespaceRetention(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 100, cfg.RetentionSizeInMB)
+	require.EqualValues(t, 10, cfg.RetentionTimeInMinutes)
+	err = admin.PersistentTopics.SetTopicRetention(testTenant, testNs, testTopic, &RetentionConfiguration{
+		RetentionSizeInMB:      50,
+		RetentionTimeInMinutes: 5,
+	})
+	assert.Error(t, err)
 }

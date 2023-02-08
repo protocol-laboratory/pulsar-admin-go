@@ -27,6 +27,7 @@ import (
 type HttpClient interface {
 	Get(path string) (*http.Response, error)
 	Put(path string, body any) (*http.Response, error)
+	Post(path string, body any) (*http.Response, error)
 	Delete(path string) (*http.Response, error)
 	Do(*http.Request) (*http.Response, error)
 }
@@ -61,6 +62,20 @@ func (h *HttpClientImpl) Delete(path string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	return h.cli.Do(req)
+}
+
+func (h *HttpClientImpl) Post(path string, body any) (*http.Response, error) {
+	url := h.urlPrefix + path
+	data, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
 	return h.cli.Do(req)
 }
 
