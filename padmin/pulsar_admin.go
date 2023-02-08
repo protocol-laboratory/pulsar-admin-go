@@ -17,7 +17,10 @@
 
 package padmin
 
-import "strconv"
+import (
+	"crypto/tls"
+	"strconv"
+)
 
 type Config struct {
 	urlPrefix string
@@ -25,6 +28,10 @@ type Config struct {
 	Host string
 	// Port pulsar service port, default 8080
 	Port int
+	// TlsEnable enable tls, default false
+	TlsEnable bool
+	// TlsConfig tls config
+	TlsConfig *tls.Config
 	// ConnectionTimeout connect timeout, default 0, zero means no timeout
 	ConnectionTimeout int64
 }
