@@ -30,23 +30,37 @@ const (
 
 // namespace
 const (
-	UrlNamespaceRetentionFormat = UrlPath + "/namespaces/%s/%s/retention"
+	UrlNamespaceRetentionFormat                         = UrlPath + "/namespaces/%s/%s/retention"
+	UrlNamespaceGetBacklogQuotaMapFormat                = UrlPath + "/namespaces/%s/%s/backlogQuotaMap"
+	UrlNamespaceOperateBacklogQuotaFormat               = UrlPath + "/namespaces/%s/%s/backlogQuota"
+	UrlNamespaceClearAllTopicsBacklogFormat             = UrlPath + "/namespaces/%s/%s/clearBacklog"
+	UrlNamespaceClearSubscriptionBacklogFormat          = UrlPath + "/namespaces/%s/%s/clearBacklog/%s"
+	UrlNamespaceClearAllTopicsBacklogForBundleFormat    = UrlPath + "/namespaces/%s/%s/%s/clearBacklog"
+	UrlNamespaceClearSubscriptionBacklogForBundleFormat = UrlPath + "/namespaces/%s/%s/%s/clearBacklog/%s"
 )
 
 // persistent
 const (
-	UrlPersistentNamespaceFormat            = UrlPath + "/persistent/%s/%s"
-	UrlPersistentTopicFormat                = UrlPath + "/persistent/%s/%s/%s"
-	UrlPersistentPartitionedNamespaceFormat = UrlPath + "/persistent/%s/%s/partitioned"
-	UrlPersistentPartitionedTopicFormat     = UrlPath + "/persistent/%s/%s/%s/partitions"
-	UrlPersistentPartitionedRetentionFormat = UrlPath + "/persistent/%s/%s/%s/retention"
+	UrlPersistentNamespaceFormat                            = UrlPath + "/persistent/%s/%s"
+	UrlPersistentTopicFormat                                = UrlPath + "/persistent/%s/%s/%s"
+	UrlPersistentPartitionedNamespaceFormat                 = UrlPath + "/persistent/%s/%s/partitioned"
+	UrlPersistentPartitionedTopicFormat                     = UrlPath + "/persistent/%s/%s/%s/partitions"
+	UrlPersistentPartitionedRetentionFormat                 = UrlPath + "/persistent/%s/%s/%s/retention"
+	UrlPersistentTopicGetBacklogQuotaMapFormat              = UrlPath + "/persistent/%s/%s/%s/backlogQuotaMap"
+	UrlPersistentTopicOperateBacklogQuotaFormat             = UrlPath + "/persistent/%s/%s/%s/backlogQuota"
+	UrlPersistentTopicEstimatedOfflineBacklogFormat         = UrlPath + "/persistent/%s%s%s/backlog"
+	UrlPersistentTopicCalculateBacklogSizeByMessageIDFormat = UrlPath + "/persistent/%s/%s/%s/backlogSize"
 )
 
 // non-persistent
 const (
-	UrlNonPersistentNamespaceFormat            = UrlPath + "/non-persistent/%s/%s"
-	UrlNonPersistentTopicFormat                = UrlPath + "/non-persistent/%s/%s/%s"
-	UrlNonPersistentPartitionedTopicFormat     = UrlPath + "/non-persistent/%s/%s/%s/partitions"
-	UrlNonPersistentPartitionedNamespaceFormat = UrlPath + "/non-persistent/%s/%s/partitioned"
-	UrlNonPersistentPartitionedRetentionFormat = UrlPath + "/non-persistent/%s/%s/%s/retention"
+	UrlNonPersistentNamespaceFormat                            = UrlPath + "/non-persistent/%s/%s"
+	UrlNonPersistentTopicFormat                                = UrlPath + "/non-persistent/%s/%s/%s"
+	UrlNonPersistentPartitionedTopicFormat                     = UrlPath + "/non-persistent/%s/%s/%s/partitions"
+	UrlNonPersistentPartitionedNamespaceFormat                 = UrlPath + "/non-persistent/%s/%s/partitioned"
+	UrlNonPersistentPartitionedRetentionFormat                 = UrlPath + "/non-persistent/%s/%s/%s/retention"
+	UrlNonPersistentTopicGetBacklogQuotaMapFormat              = UrlPath + "/non-persistent/%s/%s/%s/backlogQuotaMap"
+	UrlNonPersistentTopicOperateBacklogQuotaFormat             = UrlPath + "/non-persistent/%s/%s/%s/backlogQuota"
+	UrlNonPersistentTopicEstimatedOfflineBacklogFormat         = UrlPath + "/non-persistent/%s%s%s/backlog"
+	UrlNonPersistentTopicCalculateBacklogSizeByMessageIDFormat = UrlPath + "/non-persistent/%s/%s/%s/backlogSize"
 )

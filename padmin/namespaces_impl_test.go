@@ -19,9 +19,10 @@ package padmin
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestNamespaces(t *testing.T) {
@@ -60,4 +61,54 @@ func TestNamespacesImpl_OperateNamespaceRetention(t *testing.T) {
 	require.Nil(t, err)
 	require.EqualValues(t, 0, cfg.RetentionSizeInMB)
 	require.EqualValues(t, 0, cfg.RetentionTimeInMinutes)
+}
+
+func TestNamespacesImpl_GetBacklogQuota(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testNs := RandStr(8)
+	err := admin.Namespaces.Create("public", testNs)
+	require.Nil(t, err)
+	info, err := admin.Namespaces.GetNamespaceBacklogQuota("public", testNs)
+	require.Nil(t, err)
+	t.Logf("get quota info: %+v", info)
+}
+
+func TestNamespacesImpl_SetNamespaceBacklogQuota(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testNs := RandStr(8)
+	err := admin.Namespaces.Create("public", testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.SetNamespaceBacklogQuota("public", testNs, &BacklogQuota{
+		Limit:     100,
+		LimitSize: 100,
+		LimitTime: 30,
+		Policy:    ProducerRequestHold,
+	})
+	require.Nil(t, err)
+}
+
+func TestNamespacesImpl_RemoveNamespaceBacklogQuota(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testNs := RandStr(8)
+	err := admin.Namespaces.Create("public", testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.RemoveNamespaceBacklogQuota("public", testNs)
+	require.Nil(t, err)
+}
+
+func TestNamespacesImpl_ClearNamespaceAllTopicsBacklog(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testNs := RandStr(8)
+	err := admin.Namespaces.Create("public", testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.ClearNamespaceAllTopicsBacklog("public", testNs)
+	require.Nil(t, err)
 }
