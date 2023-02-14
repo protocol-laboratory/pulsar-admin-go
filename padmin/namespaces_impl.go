@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 type Namespaces interface {
@@ -29,6 +30,8 @@ type Namespaces interface {
 	List(tenant string) ([]string, error)
 	NamespaceRetention
 	NamespaceBacklog
+	NamespaceMessageTTL
+	NamespaceCompaction
 }
 
 type NamespacesImpl struct {
@@ -195,6 +198,82 @@ func (n *NamespacesImpl) SetNamespaceRetention(tenant, namespace string, cfg *Re
 
 func (n *NamespacesImpl) RemoveNamespaceRetention(tenant, namespace string) error {
 	url := fmt.Sprintf(UrlNamespaceRetentionFormat, tenant, namespace)
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NamespacesImpl) GetNamespaceMessageTTL(tenant, namespace string) (int64, error) {
+	url := fmt.Sprintf(UrlNamespaceMessageTTLFormat, tenant, namespace)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	res, err := ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if len(res) == 0 {
+		return 0, nil
+	}
+	i, err := strconv.ParseInt(res, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+func (n *NamespacesImpl) SetNamespaceMessageTTL(tenant, namespace string, seconds int64) error {
+	url := fmt.Sprintf(UrlNamespaceMessageTTLFormat, tenant, namespace)
+	resp, err := n.cli.Post(url, seconds)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NamespacesImpl) RemoveNamespaceMessageTTL(tenant, namespace string) error {
+	url := fmt.Sprintf(UrlNamespaceMessageTTLFormat, tenant, namespace)
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NamespacesImpl) GetMaximumUnCompactedBytes(tenant, namespace string) (int64, error) {
+	url := fmt.Sprintf(UrlNamespaceCompactionThresholdFormat, tenant, namespace)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	res, err := ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if len(res) == 0 {
+		return 0, nil
+	}
+	i, err := strconv.ParseInt(res, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+func (n *NamespacesImpl) SetMaximumUnCompactedBytes(tenant, namespace string, threshold int64) error {
+	url := fmt.Sprintf(UrlNamespaceCompactionThresholdFormat, tenant, namespace)
+	resp, err := n.cli.Put(url, threshold)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NamespacesImpl) RemoveMaximumUnCompactedBytes(tenant, namespace string) error {
+	url := fmt.Sprintf(UrlNamespaceCompactionThresholdFormat, tenant, namespace)
 	resp, err := n.cli.Delete(url)
 	if err != nil {
 		return err

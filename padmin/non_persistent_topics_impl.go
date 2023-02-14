@@ -20,12 +20,15 @@ package padmin
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type NonPersistentTopics interface {
 	WithOptions(opts ...Option) NonPersistentTopics
 	Topics
 	TopicBacklog
+	TopicMessageTTL
+	TopicCompaction
 }
 
 // GetTopicBacklogQuota Get backlog quota map on a topic.
@@ -66,7 +69,6 @@ func (n *NonPersistentTopicsImpl) RemoveTopicBacklogQuota(tenant, namespace, top
 		return err
 	}
 	return HttpCheck(resp)
-
 }
 
 // EstimatedOfflineTopicBacklog Get estimated backlog for offline topic.
@@ -86,7 +88,7 @@ func (n *NonPersistentTopicsImpl) EstimatedOfflineTopicBacklog(tenant, namespace
 
 // CalculateBacklogSizeByMessageID Calculate backlog size by a message ID (in bytes).
 func (n *NonPersistentTopicsImpl) CalculateBacklogSizeByMessageID(tenant, namespace, topic string) error {
-	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentTopicEstimatedOfflineBacklogFormat, tenant, namespace, topic))
+	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentTopicCalculateBacklogSizeByMessageIDFormat, tenant, namespace, topic))
 	if err != nil {
 		return err
 	}
@@ -231,6 +233,104 @@ func (n *NonPersistentTopicsImpl) SetTopicRetention(tenant, namespace, topic str
 func (n *NonPersistentTopicsImpl) RemoveTopicRetention(tenant, namespace, topic string) error {
 	url := fmt.Sprintf(UrlNonPersistentPartitionedRetentionFormat, tenant, namespace, topic)
 	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) GetTopicMessageTTL(tenant, namespace, topic string) (int64, error) {
+	url := fmt.Sprintf(UrlNonPersistentTopicMessageTTLFormat, tenant, namespace, topic)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	res, err := ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if len(res) == 0 {
+		return 0, nil
+	}
+	i, err := strconv.ParseInt(res, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+func (n *NonPersistentTopicsImpl) SetTopicMessageTTL(tenant, namespace, topic string, seconds int64) error {
+	url := fmt.Sprintf(UrlNonPersistentTopicMessageTTLFormat, tenant, namespace, topic)
+	resp, err := n.cli.Post(url, seconds)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) RemoveTopicMessageTTL(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlNonPersistentTopicMessageTTLFormat, tenant, namespace, topic)
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) GetTopicCompactionThreshold(tenant, namespace, topic string) (int64, error) {
+	url := fmt.Sprintf(UrlNonPersistentTopicCompactionThresholdFormat, tenant, namespace, topic)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	res, err := ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if len(res) == 0 {
+		return 0, nil
+	}
+	i, err := strconv.ParseInt(res, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+func (n *NonPersistentTopicsImpl) SetTopicCompactionThreshold(tenant, namespace, topic string, threshold int64) error {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionThresholdFormat, tenant, namespace, topic)
+	resp, err := n.cli.Post(url, threshold)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) RemoveTopicCompactionThreshold(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionThresholdFormat, tenant, namespace, topic)
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (n *NonPersistentTopicsImpl) GetTopicCompactionStatus(tenant, namespace, topic string) (*LongRunningProcessStatus, error) {
+	url := fmt.Sprintf(UrlNonPersistentTopicCompactionFormat, tenant, namespace, topic)
+	resp, err := n.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var body = new(LongRunningProcessStatus)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func (n *NonPersistentTopicsImpl) TriggerTopicCompaction(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlNonPersistentTopicCompactionFormat, tenant, namespace, topic)
+	resp, err := n.cli.Put(url, nil)
 	if err != nil {
 		return err
 	}

@@ -37,6 +37,8 @@ const (
 	UrlNamespaceClearSubscriptionBacklogFormat          = UrlPath + "/namespaces/%s/%s/clearBacklog/%s"
 	UrlNamespaceClearAllTopicsBacklogForBundleFormat    = UrlPath + "/namespaces/%s/%s/%s/clearBacklog"
 	UrlNamespaceClearSubscriptionBacklogForBundleFormat = UrlPath + "/namespaces/%s/%s/%s/clearBacklog/%s"
+	UrlNamespaceCompactionThresholdFormat               = UrlPath + "/namespaces/%s/%s/compactionThreshold"
+	UrlNamespaceMessageTTLFormat                        = UrlPath + "/namespaces/%s/%s/messageTTL"
 )
 
 // persistent
@@ -50,6 +52,9 @@ const (
 	UrlPersistentTopicOperateBacklogQuotaFormat             = UrlPath + "/persistent/%s/%s/%s/backlogQuota"
 	UrlPersistentTopicEstimatedOfflineBacklogFormat         = UrlPath + "/persistent/%s%s%s/backlog"
 	UrlPersistentTopicCalculateBacklogSizeByMessageIDFormat = UrlPath + "/persistent/%s/%s/%s/backlogSize"
+	UrlPersistentTopicCompactionThresholdFormat             = UrlPath + "/persistent/%s/%s/%s/compactionThreshold"
+	UrlPersistentTopicCompactionFormat                      = UrlPath + "/persistent/%s/%s/%s/compaction"
+	UrlPersistentTopicMessageTTLFormat                      = UrlPath + "/persistent/%s/%s/%s/messageTTL"
 )
 
 // non-persistent
@@ -63,4 +68,7 @@ const (
 	UrlNonPersistentTopicOperateBacklogQuotaFormat             = UrlPath + "/non-persistent/%s/%s/%s/backlogQuota"
 	UrlNonPersistentTopicEstimatedOfflineBacklogFormat         = UrlPath + "/non-persistent/%s%s%s/backlog"
 	UrlNonPersistentTopicCalculateBacklogSizeByMessageIDFormat = UrlPath + "/non-persistent/%s/%s/%s/backlogSize"
+	UrlNonPersistentTopicCompactionThresholdFormat             = UrlPath + "/non-persistent/%s/%s/%s/compactionThreshold"
+	UrlNonPersistentTopicCompactionFormat                      = UrlPath + "/non-persistent/%s/%s/%s/compaction"
+	UrlNonPersistentTopicMessageTTLFormat                      = UrlPath + "/non-persistent/%s/%s/%s/messageTTL"
 )

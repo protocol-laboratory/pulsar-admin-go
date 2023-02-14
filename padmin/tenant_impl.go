@@ -22,12 +22,6 @@ import (
 	"io"
 )
 
-type Tenants interface {
-	Create(tenantName string, info TenantInfo) error
-	Delete(tenantName string) error
-	List() ([]string, error)
-}
-
 type TenantsImpl struct {
 	cli HttpClient
 }
