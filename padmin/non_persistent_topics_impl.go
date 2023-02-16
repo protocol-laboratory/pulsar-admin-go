@@ -23,11 +23,87 @@ import (
 )
 
 type NonPersistentTopics interface {
+	WithOptions(opts ...Option) NonPersistentTopics
 	Topics
+	TopicBacklog
+}
+
+// GetTopicBacklogQuota Get backlog quota map on a topic.
+func (n *NonPersistentTopicsImpl) GetTopicBacklogQuota(tenant, namespace, topic string) (*BacklogQuotaResp, error) {
+	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentTopicGetBacklogQuotaMapFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(BacklogQuotaResp)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+// SetTopicBacklogQuota Set a backlog quota for a topic.
+func (n *NonPersistentTopicsImpl) SetTopicBacklogQuota(tenant, namespace, topic string, cfg *BacklogQuota) error {
+	url := fmt.Sprintf(UrlNonPersistentTopicOperateBacklogQuotaFormat, tenant, namespace, topic)
+	resp, err := n.cli.Post(url, cfg)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+// RemoveTopicBacklogQuota Remove a backlog quota policy from a topic.
+func (n *NonPersistentTopicsImpl) RemoveTopicBacklogQuota(tenant, namespace, topic string, opts ...Option) error {
+	if len(opts) != 0 {
+		n.WithOptions(opts...)
+	}
+	url := fmt.Sprintf(UrlNonPersistentTopicOperateBacklogQuotaFormat, tenant, namespace, topic)
+	if n.options.backlogQuotaType != "" {
+		url = fmt.Sprintf("%s?backlogQuotaType=", n.options.backlogQuotaType)
+	}
+	resp, err := n.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+
+}
+
+// EstimatedOfflineTopicBacklog Get estimated backlog for offline topic.
+func (n *NonPersistentTopicsImpl) EstimatedOfflineTopicBacklog(tenant, namespace, topic string) (*OfflineTopicStats, error) {
+	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentTopicEstimatedOfflineBacklogFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(OfflineTopicStats)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+
+}
+
+// CalculateBacklogSizeByMessageID Calculate backlog size by a message ID (in bytes).
+func (n *NonPersistentTopicsImpl) CalculateBacklogSizeByMessageID(tenant, namespace, topic string) error {
+	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentTopicEstimatedOfflineBacklogFormat, tenant, namespace, topic))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return HttpCheck(resp)
 }
 
 type NonPersistentTopicsImpl struct {
 	cli HttpClient
+	options
+}
+
+func (n *NonPersistentTopicsImpl) WithOptions(opts ...Option) NonPersistentTopics {
+	for _, opt := range opts {
+		opt(&n.options)
+	}
+	return n
 }
 
 func newNonPersistentTopics(cli HttpClient) *NonPersistentTopicsImpl {

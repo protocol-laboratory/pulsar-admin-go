@@ -132,3 +132,30 @@ func TestNonPersistentTopicsImpl_OperateTopicRetention(t *testing.T) {
 	})
 	assert.Error(t, err)
 }
+
+func TestNonPersistentTopicsImpl_GetTopicBacklogQuota(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.NonPersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.NonPersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("non-persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	_, err = admin.NonPersistentTopics.GetTopicBacklogQuota(testTenant, testNs, testTopic)
+	require.Error(t, err)
+}
