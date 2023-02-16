@@ -183,3 +183,70 @@ func Test_persistentTopics_OperateTopicRetention(t *testing.T) {
 	})
 	assert.Error(t, err)
 }
+
+func TestPersistentTopicsImpl_OperateTopicMessageTTL(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	testTopic := RandStr(8)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	err = admin.Namespaces.SetNamespaceMessageTTL(testTenant, testNs, 30)
+	require.Nil(t, err)
+	_, err = admin.PersistentTopics.GetTopicMessageTTL(testTenant, testNs, testTopic)
+	require.Error(t, err)
+	err = admin.PersistentTopics.SetTopicMessageTTL(testTenant, testNs, testTopic, 30)
+	require.Error(t, err)
+	_, err = admin.PersistentTopics.GetTopicMessageTTL(testTenant, testNs, testTopic)
+	require.Error(t, err)
+}
+
+func TestPersistentTopicsImpl_OperateTopicCompactionThreshold(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	testTopic := RandStr(8)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	threshold, err := admin.PersistentTopics.GetTopicCompactionThreshold(testTenant, testNs, testTopic)
+	require.Error(t, err)
+	require.EqualValues(t, 0, threshold)
+}

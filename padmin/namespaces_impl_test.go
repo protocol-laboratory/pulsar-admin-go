@@ -29,13 +29,18 @@ func TestNamespaces(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
 	testNs := RandStr(8)
-	err := admin.Namespaces.Create("public", testNs)
+	err = admin.Namespaces.Create(testTenant, testNs)
 	require.Nil(t, err)
-	namespaces, err := admin.Namespaces.List("public")
+	namespaces, err := admin.Namespaces.List(testTenant)
 	require.Nil(t, err)
-	assert.Contains(t, namespaces, fmt.Sprintf("public/%s", testNs))
-	err = admin.Namespaces.Delete("public", testNs)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	err = admin.Namespaces.Delete(testTenant, testNs)
 	require.Nil(t, err)
 }
 
@@ -43,21 +48,26 @@ func TestNamespacesImpl_OperateNamespaceRetention(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
-	testNs := RandStr(8)
-	err := admin.Namespaces.Create("public", testNs)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
 	require.Nil(t, err)
-	err = admin.Namespaces.SetNamespaceRetention("public", testNs, &RetentionConfiguration{
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.SetNamespaceRetention(testTenant, testNs, &RetentionConfiguration{
 		RetentionSizeInMB:      100,
 		RetentionTimeInMinutes: 10,
 	})
 	require.Nil(t, err)
-	cfg, err := admin.Namespaces.GetNamespaceRetention("public", testNs)
+	cfg, err := admin.Namespaces.GetNamespaceRetention(testTenant, testNs)
 	require.Nil(t, err)
 	require.EqualValues(t, 100, cfg.RetentionSizeInMB)
 	require.EqualValues(t, 10, cfg.RetentionTimeInMinutes)
-	err = admin.Namespaces.RemoveNamespaceRetention("public", testNs)
+	err = admin.Namespaces.RemoveNamespaceRetention(testTenant, testNs)
 	require.Nil(t, err)
-	cfg, err = admin.Namespaces.GetNamespaceRetention("public", testNs)
+	cfg, err = admin.Namespaces.GetNamespaceRetention(testTenant, testNs)
 	require.Nil(t, err)
 	require.EqualValues(t, 0, cfg.RetentionSizeInMB)
 	require.EqualValues(t, 0, cfg.RetentionTimeInMinutes)
@@ -67,10 +77,15 @@ func TestNamespacesImpl_GetBacklogQuota(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
-	testNs := RandStr(8)
-	err := admin.Namespaces.Create("public", testNs)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
 	require.Nil(t, err)
-	info, err := admin.Namespaces.GetNamespaceBacklogQuota("public", testNs)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	info, err := admin.Namespaces.GetNamespaceBacklogQuota(testTenant, testNs)
 	require.Nil(t, err)
 	t.Logf("get quota info: %+v", info)
 }
@@ -79,10 +94,15 @@ func TestNamespacesImpl_SetNamespaceBacklogQuota(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
-	testNs := RandStr(8)
-	err := admin.Namespaces.Create("public", testNs)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
 	require.Nil(t, err)
-	err = admin.Namespaces.SetNamespaceBacklogQuota("public", testNs, &BacklogQuota{
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.SetNamespaceBacklogQuota(testTenant, testNs, &BacklogQuota{
 		Limit:     100,
 		LimitSize: 100,
 		LimitTime: 30,
@@ -95,10 +115,15 @@ func TestNamespacesImpl_RemoveNamespaceBacklogQuota(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
-	testNs := RandStr(8)
-	err := admin.Namespaces.Create("public", testNs)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
 	require.Nil(t, err)
-	err = admin.Namespaces.RemoveNamespaceBacklogQuota("public", testNs)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.RemoveNamespaceBacklogQuota(testTenant, testNs)
 	require.Nil(t, err)
 }
 
@@ -106,9 +131,73 @@ func TestNamespacesImpl_ClearNamespaceAllTopicsBacklog(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
 	testNs := RandStr(8)
-	err := admin.Namespaces.Create("public", testNs)
+	err = admin.Namespaces.Create(testTenant, testNs)
 	require.Nil(t, err)
-	err = admin.Namespaces.ClearNamespaceAllTopicsBacklog("public", testNs)
+	err = admin.Namespaces.ClearNamespaceAllTopicsBacklog(testTenant, testNs)
 	require.Nil(t, err)
+}
+
+func TestNamespacesImpl_OperateMessageTTL(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	_, err = admin.Namespaces.GetNamespaceMessageTTL(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.Namespaces.SetNamespaceMessageTTL(testTenant, testNs, 30)
+	require.Nil(t, err)
+	ttl, err := admin.Namespaces.GetNamespaceMessageTTL(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 30, ttl)
+	err = admin.Namespaces.RemoveNamespaceMessageTTL(testTenant, testNs)
+	require.Nil(t, err)
+	ttl, err = admin.Namespaces.GetNamespaceMessageTTL(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 0, ttl)
+}
+
+func TestNamespacesImpl_OperateCompaction(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	threshold, err := admin.Namespaces.GetMaximumUnCompactedBytes(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 0, threshold)
+	err = admin.Namespaces.SetMaximumUnCompactedBytes(testTenant, testNs, 10)
+	require.Nil(t, err)
+	threshold, err = admin.Namespaces.GetMaximumUnCompactedBytes(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 10, threshold)
+	err = admin.Namespaces.RemoveMaximumUnCompactedBytes(testTenant, testNs)
+	require.Nil(t, err)
+	threshold, err = admin.Namespaces.GetMaximumUnCompactedBytes(testTenant, testNs)
+	require.Nil(t, err)
+	require.EqualValues(t, 0, threshold)
 }

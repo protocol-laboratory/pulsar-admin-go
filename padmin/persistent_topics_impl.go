@@ -20,12 +20,15 @@ package padmin
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 type PersistentTopics interface {
 	WithOptions(opts ...Option) PersistentTopics
 	Topics
 	TopicBacklog
+	TopicMessageTTL
+	TopicCompaction
 }
 
 type PersistentTopicsImpl struct {
@@ -94,7 +97,7 @@ func (p *PersistentTopicsImpl) EstimatedOfflineTopicBacklog(tenant, namespace, t
 
 // CalculateBacklogSizeByMessageID Calculate backlog size by a message ID (in bytes).
 func (p *PersistentTopicsImpl) CalculateBacklogSizeByMessageID(tenant, namespace, topic string) error {
-	resp, err := p.cli.Get(fmt.Sprintf(UrlPersistentTopicEstimatedOfflineBacklogFormat, tenant, namespace, topic))
+	resp, err := p.cli.Get(fmt.Sprintf(UrlPersistentTopicCalculateBacklogSizeByMessageIDFormat, tenant, namespace, topic))
 	if err != nil {
 		return err
 	}
@@ -232,6 +235,104 @@ func (p *PersistentTopicsImpl) SetTopicRetention(tenant, namespace, topic string
 func (p *PersistentTopicsImpl) RemoveTopicRetention(tenant, namespace, topic string) error {
 	url := fmt.Sprintf(UrlPersistentPartitionedRetentionFormat, tenant, namespace, topic)
 	resp, err := p.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (p *PersistentTopicsImpl) GetTopicMessageTTL(tenant, namespace, topic string) (int64, error) {
+	url := fmt.Sprintf(UrlPersistentTopicMessageTTLFormat, tenant, namespace, topic)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	res, err := ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if len(res) == 0 {
+		return 0, nil
+	}
+	i, err := strconv.ParseInt(res, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+func (p *PersistentTopicsImpl) SetTopicMessageTTL(tenant, namespace, topic string, seconds int64) error {
+	url := fmt.Sprintf(UrlPersistentTopicMessageTTLFormat, tenant, namespace, topic)
+	resp, err := p.cli.Post(url, seconds)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (p *PersistentTopicsImpl) RemoveTopicMessageTTL(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlPersistentTopicMessageTTLFormat, tenant, namespace, topic)
+	resp, err := p.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (p *PersistentTopicsImpl) GetTopicCompactionThreshold(tenant, namespace, topic string) (int64, error) {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionThresholdFormat, tenant, namespace, topic)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	res, err := ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	if len(res) == 0 {
+		return 0, nil
+	}
+	i, err := strconv.ParseInt(res, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return i, nil
+}
+
+func (p *PersistentTopicsImpl) SetTopicCompactionThreshold(tenant, namespace, topic string, threshold int64) error {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionThresholdFormat, tenant, namespace, topic)
+	resp, err := p.cli.Post(url, threshold)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (p *PersistentTopicsImpl) RemoveTopicCompactionThreshold(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionThresholdFormat, tenant, namespace, topic)
+	resp, err := p.cli.Delete(url)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
+func (p *PersistentTopicsImpl) GetTopicCompactionStatus(tenant, namespace, topic string) (*LongRunningProcessStatus, error) {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionFormat, tenant, namespace, topic)
+	resp, err := p.cli.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var body = new(LongRunningProcessStatus)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func (p *PersistentTopicsImpl) TriggerTopicCompaction(tenant, namespace, topic string) error {
+	url := fmt.Sprintf(UrlPersistentTopicCompactionFormat, tenant, namespace, topic)
+	resp, err := p.cli.Put(url, nil)
 	if err != nil {
 		return err
 	}
