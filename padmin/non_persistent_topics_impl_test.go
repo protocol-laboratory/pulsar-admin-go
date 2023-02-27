@@ -56,6 +56,12 @@ func TestNonPersistentTopics(t *testing.T) {
 	}
 	err = admin.Namespaces.Delete(testTenant, testNs)
 	require.Nil(t, err)
+	tenants, err := admin.Tenants.List()
+	require.Nil(t, err)
+	if len(tenants) == 0 {
+		t.Fatalf("tenants not exist")
+		return
+	}
 	err = admin.Tenants.Delete(testTenant)
 	require.Nil(t, err)
 }
@@ -225,4 +231,34 @@ func TestNonPersistentTopicsImpl_OperateTopicCompactionThreshold(t *testing.T) {
 	threshold, err := admin.NonPersistentTopics.GetTopicCompactionThreshold(testTenant, testNs, testTopic)
 	require.Error(t, err)
 	require.EqualValues(t, 0, threshold)
+}
+
+func TestNonPersistentTopicsImpl_CreateMissedPartitions(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	testTopic := RandStr(8)
+	err = admin.NonPersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.NonPersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("non-persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	err = admin.NonPersistentTopics.CreateMissedPartitions(testTenant, testNs, testTopic)
+	require.Nil(t, err)
 }

@@ -19,13 +19,17 @@ package padmin
 
 const (
 	// UrlPath for the Admin API
-	UrlPath               = "/admin/v2"
+	UrlPath             = "/admin/v2"
+	UrlClusters         = UrlPath + "/clusters"
+	UrlTenants          = UrlPath + "/tenants"
+	UrlNamespacesFormat = UrlPath + "/namespaces/%s/%s"
+)
+
+// bookies
+const (
 	UrlBookiesAll         = UrlPath + "/bookies/all"
 	UrlBookiesRacksInfo   = UrlPath + "/bookies/racks-info"
 	UrlBookiesRacksFormat = UrlPath + "/bookies/racks-info/%s"
-	UrlClusters           = UrlPath + "/clusters"
-	UrlTenants            = UrlPath + "/tenants"
-	UrlNamespacesFormat   = UrlPath + "/namespaces/%s/%s"
 )
 
 // namespace
@@ -55,6 +59,7 @@ const (
 	UrlPersistentTopicCompactionThresholdFormat             = UrlPath + "/persistent/%s/%s/%s/compactionThreshold"
 	UrlPersistentTopicCompactionFormat                      = UrlPath + "/persistent/%s/%s/%s/compaction"
 	UrlPersistentTopicMessageTTLFormat                      = UrlPath + "/persistent/%s/%s/%s/messageTTL"
+	UrlPersistentTopicCreateMissedPartitionsFormat          = UrlPath + "/persistent/%s/%s/%s/createMissedPartitions"
 )
 
 // non-persistent
@@ -71,4 +76,5 @@ const (
 	UrlNonPersistentTopicCompactionThresholdFormat             = UrlPath + "/non-persistent/%s/%s/%s/compactionThreshold"
 	UrlNonPersistentTopicCompactionFormat                      = UrlPath + "/non-persistent/%s/%s/%s/compaction"
 	UrlNonPersistentTopicMessageTTLFormat                      = UrlPath + "/non-persistent/%s/%s/%s/messageTTL"
+	UrlNonPersistentTopicsCreateMissedPartitionsFormat         = UrlPath + "/non-persistent/%s/%s/%s/createMissedPartitions"
 )

@@ -27,6 +27,7 @@ type Topics interface {
 	ListPartitioned(tenant, namespace string) ([]string, error)
 	ListNamespaceTopics(tenant, namespace string) ([]string, error)
 	GetPartitionedMetadata(tenant, namespace, topic string) (*PartitionedMetadata, error)
+	CreateMissedPartitions(tenant, namespace, topic string) error
 	TopicRetention
 }
 
