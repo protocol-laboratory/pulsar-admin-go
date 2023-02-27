@@ -58,7 +58,7 @@ func startTestBroker(t *testing.T) *TestBroker {
 func startTestBrokerDocker(t *testing.T) *TestBroker {
 	ctx := context.Background()
 	req := testcontainers.ContainerRequest{
-		Image:        "apachepulsar/pulsar:latest",
+		Image:        "apachepulsar/pulsar:2.10.1",
 		ExposedPorts: []string{"6650/tcp", "8080/tcp"},
 		Cmd:          []string{"/pulsar/bin/pulsar", "standalone", "--no-functions-worker", "--no-stream-storage"},
 		WaitingFor: wait.ForHTTP("/admin/v2/brokers/health").WithPort("8080/tcp").WithStatusCodeMatcher(func(statusCode int) bool {

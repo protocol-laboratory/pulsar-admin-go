@@ -36,6 +36,15 @@ type PersistentTopicsImpl struct {
 	options
 }
 
+func (p *PersistentTopicsImpl) CreateMissedPartitions(tenant string, namespace string, topic string) error {
+	url := fmt.Sprintf(UrlPersistentTopicCreateMissedPartitionsFormat, tenant, namespace, topic)
+	resp, err := p.cli.Post(url, nil)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
 func (p *PersistentTopicsImpl) WithOptions(opts ...Option) PersistentTopics {
 	for _, opt := range opts {
 		opt(&p.options)

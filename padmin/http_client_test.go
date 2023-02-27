@@ -18,6 +18,7 @@
 package padmin
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -52,4 +53,15 @@ func Test_newHttpClient(t *testing.T) {
 		return
 	}
 	fmt.Println(all)
+}
+
+func TestMarshal(t *testing.T) {
+	var a interface{} = 1
+	bb, err := json.Marshal(a)
+	assert.NoError(t, err)
+	assert.EqualValues(t, []byte{49}, bb)
+	var b interface{} = "1"
+	bb, err = json.Marshal(b)
+	assert.NoError(t, err)
+	t.Log(bb)
 }

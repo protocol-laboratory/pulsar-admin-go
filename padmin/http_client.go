@@ -20,7 +20,6 @@ package padmin
 import (
 	"bytes"
 	"encoding/json"
-	"io"
 	"net/http"
 	"time"
 )
@@ -49,11 +48,7 @@ func (h *HttpClientImpl) Put(path string, body any) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	var putData io.Reader
-	if body != nil {
-		putData = bytes.NewBuffer(data)
-	}
-	req, err := http.NewRequest("PUT", url, putData)
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
 	}

@@ -101,6 +101,15 @@ type NonPersistentTopicsImpl struct {
 	options
 }
 
+func (n *NonPersistentTopicsImpl) CreateMissedPartitions(tenant string, namespace string, topic string) error {
+	url := fmt.Sprintf(UrlNonPersistentTopicsCreateMissedPartitionsFormat, tenant, namespace, topic)
+	resp, err := n.cli.Post(url, nil)
+	if err != nil {
+		return err
+	}
+	return HttpCheck(resp)
+}
+
 func (n *NonPersistentTopicsImpl) WithOptions(opts ...Option) NonPersistentTopics {
 	for _, opt := range opts {
 		opt(&n.options)
