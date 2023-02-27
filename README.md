@@ -24,6 +24,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(topics)
+	fmt.Println("hello world")
 }
 ```
 
