@@ -309,5 +309,5 @@ func TestPersistentTopicsImpl_GetLastMessageID(t *testing.T) {
 	}
 	msg, err := admin.PersistentTopics.GetLastMessageID(testTenant, testNs, testTopic+"-partition-0")
 	require.Nil(t, err)
-	t.Logf("get last message id: %v", msg)
+	require.Greater(t, msg.LedgerId, int64(0))
 }
