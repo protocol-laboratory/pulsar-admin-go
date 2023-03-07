@@ -31,6 +31,10 @@ type NonPersistentTopics interface {
 	TopicCompaction
 }
 
+func (n *NonPersistentTopicsImpl) GetLastMessageID(tenant string, namespace string, topic string) (*MessageId, error) {
+	return nil, fmt.Errorf("GetLastMessageId on a non-persistent topic is not allowed")
+}
+
 // GetTopicBacklogQuota Get backlog quota map on a topic.
 func (n *NonPersistentTopicsImpl) GetTopicBacklogQuota(tenant, namespace, topic string) (*BacklogQuotaResp, error) {
 	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentTopicGetBacklogQuotaMapFormat, tenant, namespace, topic))

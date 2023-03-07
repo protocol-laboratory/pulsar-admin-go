@@ -60,6 +60,7 @@ const (
 	UrlPersistentTopicCompactionFormat                      = UrlPath + "/persistent/%s/%s/%s/compaction"
 	UrlPersistentTopicMessageTTLFormat                      = UrlPath + "/persistent/%s/%s/%s/messageTTL"
 	UrlPersistentTopicCreateMissedPartitionsFormat          = UrlPath + "/persistent/%s/%s/%s/createMissedPartitions"
+	UrlPersistentGetLastMessageIdFormat                     = UrlPath + "/persistent/%s/%s/%s/lastMessageId"
 )
 
 // non-persistent
@@ -77,4 +78,5 @@ const (
 	UrlNonPersistentTopicCompactionFormat                      = UrlPath + "/non-persistent/%s/%s/%s/compaction"
 	UrlNonPersistentTopicMessageTTLFormat                      = UrlPath + "/non-persistent/%s/%s/%s/messageTTL"
 	UrlNonPersistentTopicsCreateMissedPartitionsFormat         = UrlPath + "/non-persistent/%s/%s/%s/createMissedPartitions"
+	UrlNonPersistentGetLastMessageIdFormat                     = UrlPath + "/non-persistent/%s/%s/%s/lastMessageId"
 )
