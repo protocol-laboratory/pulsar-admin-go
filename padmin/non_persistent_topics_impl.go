@@ -31,7 +31,7 @@ type NonPersistentTopics interface {
 	TopicCompaction
 }
 
-func (n *NonPersistentTopicsImpl) GetLastMessageID(tenant string, namespace string, topic string) (*MessageId, error) {
+func (n *NonPersistentTopicsImpl) GetLastMessageId(tenant string, namespace string, topic string) (*MessageId, error) {
 	return nil, fmt.Errorf("GetLastMessageId on a non-persistent topic is not allowed")
 }
 
