@@ -281,7 +281,7 @@ func TestPersistentTopicsImpl_CreateMissedPartitions(t *testing.T) {
 	require.Nil(t, err)
 }
 
-func TestPersistentTopicsImpl_GetLastMessageID(t *testing.T) {
+func TestPersistentTopicsImpl_GetLastMessageId(t *testing.T) {
 	broker := startTestBroker(t)
 	defer broker.Close()
 	admin := NewTestPulsarAdmin(t, broker.webPort)
@@ -307,7 +307,7 @@ func TestPersistentTopicsImpl_GetLastMessageID(t *testing.T) {
 	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
 		t.Fatal("topic name should be equal")
 	}
-	msg, err := admin.PersistentTopics.GetLastMessageID(testTenant, testNs, testTopic+"-partition-0")
+	msg, err := admin.PersistentTopics.GetLastMessageId(testTenant, testNs, testTopic+"-partition-0")
 	require.Nil(t, err)
-	t.Logf("get last message id: %v", msg)
+	require.Greater(t, msg.LedgerId, int64(0))
 }

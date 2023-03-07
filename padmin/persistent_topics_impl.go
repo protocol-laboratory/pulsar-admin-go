@@ -31,7 +31,7 @@ type PersistentTopics interface {
 	TopicCompaction
 }
 
-func (p *PersistentTopicsImpl) GetLastMessageID(tenant string, namespace string, topic string) (*MessageId, error) {
+func (p *PersistentTopicsImpl) GetLastMessageId(tenant string, namespace string, topic string) (*MessageId, error) {
 	url := fmt.Sprintf(UrlPersistentGetLastMessageIdFormat, tenant, namespace, topic)
 	resp, err := p.cli.Get(url)
 	if err != nil {
