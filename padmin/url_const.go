@@ -25,6 +25,12 @@ const (
 	UrlNamespacesFormat = UrlPath + "/namespaces/%s/%s"
 )
 
+// lookup
+const (
+	UrlLookupBrokerFormat             = "/lookup/v2/topic/%s/%s/%s/%s"
+	UrlLookupGetNamespaceBundleFormat = "/lookup/v2/topic/%s/%s/%s/%s/bundle"
+)
+
 // bookies
 const (
 	UrlBookiesAll         = UrlPath + "/bookies/all"

@@ -258,6 +258,7 @@ func (n *NonPersistentTopicsImpl) GetTopicMessageTTL(tenant, namespace, topic st
 	if err != nil {
 		return 0, err
 	}
+	defer resp.Body.Close()
 	res, err := ReadAll(resp.Body)
 	if err != nil {
 		return 0, err
@@ -296,6 +297,7 @@ func (n *NonPersistentTopicsImpl) GetTopicCompactionThreshold(tenant, namespace,
 	if err != nil {
 		return 0, err
 	}
+	defer resp.Body.Close()
 	res, err := ReadAll(resp.Body)
 	if err != nil {
 		return 0, err

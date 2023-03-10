@@ -270,6 +270,7 @@ func (p *PersistentTopicsImpl) GetTopicMessageTTL(tenant, namespace, topic strin
 	if err != nil {
 		return 0, err
 	}
+	defer resp.Body.Close()
 	res, err := ReadAll(resp.Body)
 	if err != nil {
 		return 0, err
@@ -308,6 +309,7 @@ func (p *PersistentTopicsImpl) GetTopicCompactionThreshold(tenant, namespace, to
 	if err != nil {
 		return 0, err
 	}
+	defer resp.Body.Close()
 	res, err := ReadAll(resp.Body)
 	if err != nil {
 		return 0, err
