@@ -32,6 +32,12 @@ const (
 	UrlBookiesRacksFormat = UrlPath + "/bookies/racks-info/%s"
 )
 
+// lookup
+const (
+	UrlLookupBrokerFormat             = "/lookup/v2/topic/%s/%s/%s/%s"
+	UrlLookupGetNamespaceBundleFormat = "/lookup/v2/topic/%s/%s/%s/%s/bundle"
+)
+
 // namespace
 const (
 	UrlNamespaceRetentionFormat                         = UrlPath + "/namespaces/%s/%s/retention"

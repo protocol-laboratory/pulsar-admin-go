@@ -211,6 +211,7 @@ func (n *NamespacesImpl) GetNamespaceMessageTTL(tenant, namespace string) (int64
 	if err != nil {
 		return 0, err
 	}
+	defer resp.Body.Close()
 	res, err := ReadAll(resp.Body)
 	if err != nil {
 		return 0, err
@@ -249,6 +250,7 @@ func (n *NamespacesImpl) GetMaximumUnCompactedBytes(tenant, namespace string) (i
 	if err != nil {
 		return 0, err
 	}
+	defer resp.Body.Close()
 	res, err := ReadAll(resp.Body)
 	if err != nil {
 		return 0, err

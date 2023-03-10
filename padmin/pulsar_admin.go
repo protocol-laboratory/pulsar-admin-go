@@ -43,6 +43,7 @@ type PulsarAdmin struct {
 	PersistentTopics    PersistentTopics
 	NonPersistentTopics NonPersistentTopics
 	Bookies             Bookies
+	Lookup              Lookup
 }
 
 func NewDefaultPulsarAdmin() (*PulsarAdmin, error) {
@@ -68,5 +69,6 @@ func NewPulsarAdmin(config Config) (*PulsarAdmin, error) {
 		PersistentTopics:    newPersistentTopics(client),
 		NonPersistentTopics: newNonPersistentTopics(client),
 		Bookies:             newBookies(client),
+		Lookup:              newLookup(client),
 	}, nil
 }
