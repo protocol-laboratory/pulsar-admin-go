@@ -29,6 +29,7 @@ type NonPersistentTopics interface {
 	TopicBacklog
 	TopicMessageTTL
 	TopicCompaction
+	TopicStats
 }
 
 func (n *NonPersistentTopicsImpl) GetLastMessageId(tenant string, namespace string, topic string) (*MessageId, error) {
@@ -105,6 +106,42 @@ type NonPersistentTopicsImpl struct {
 	options
 }
 
+func (n *NonPersistentTopicsImpl) GetStats(tenant string, namespace string, topic string) (*TopicStatistics, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (n *NonPersistentTopicsImpl) GetPartitionedStats(tenant string, namespace string, topic string) ([]*TopicStatistics, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (n *NonPersistentTopicsImpl) GetStatsInternal(tenant string, namespace string, topic string) (*TopicInternalStats, error) {
+	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentGetInternalStatsForTopicFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(TopicInternalStats)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func (n *NonPersistentTopicsImpl) GetPartitionedStatsInternal(tenant string, namespace string, topic string) (*PartitionedTopicInternalStats, error) {
+	resp, err := n.cli.Get(fmt.Sprintf(UrlNonPersistentGetInternalStatsForPartitionedTopicFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(PartitionedTopicInternalStats)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
 func (n *NonPersistentTopicsImpl) CreateMissedPartitions(tenant string, namespace string, topic string) error {
 	url := fmt.Sprintf(UrlNonPersistentTopicsCreateMissedPartitionsFormat, tenant, namespace, topic)
 	resp, err := n.cli.Post(url, nil)
@@ -121,7 +158,7 @@ func (n *NonPersistentTopicsImpl) WithOptions(opts ...Option) NonPersistentTopic
 	return n
 }
 
-func newNonPersistentTopics(cli HttpClient) *NonPersistentTopicsImpl {
+func newNonPersistentTopics(cli HttpClient) NonPersistentTopics {
 	return &NonPersistentTopicsImpl{cli: cli}
 }
 
