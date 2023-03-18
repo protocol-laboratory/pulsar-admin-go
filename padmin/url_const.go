@@ -67,6 +67,10 @@ const (
 	UrlPersistentTopicMessageTTLFormat                      = UrlPath + "/persistent/%s/%s/%s/messageTTL"
 	UrlPersistentTopicCreateMissedPartitionsFormat          = UrlPath + "/persistent/%s/%s/%s/createMissedPartitions"
 	UrlPersistentGetLastMessageIdFormat                     = UrlPath + "/persistent/%s/%s/%s/lastMessageId"
+	UrlPersistentGetInternalStatsForTopicFormat             = UrlPath + "/persistent/%s/%s/%s/internalStats"
+	UrlPersistentGetInternalStatsForPartitionedTopicFormat  = UrlPath + "/persistent/%s/%s/%s/partitioned-internalStats"
+	UrlPersistentGetStatsForTopicFormat                     = UrlPath + "/persistent/%s/%s/%s/stats"
+	UrlPersistentGetStatsForPartitionedTopicFormat          = UrlPath + "/persistent/%s/%s/%s/partitioned-stats"
 )
 
 // non-persistent
@@ -85,4 +89,8 @@ const (
 	UrlNonPersistentTopicMessageTTLFormat                      = UrlPath + "/non-persistent/%s/%s/%s/messageTTL"
 	UrlNonPersistentTopicsCreateMissedPartitionsFormat         = UrlPath + "/non-persistent/%s/%s/%s/createMissedPartitions"
 	UrlNonPersistentGetLastMessageIdFormat                     = UrlPath + "/non-persistent/%s/%s/%s/lastMessageId"
+	UrlNonPersistentGetInternalStatsForTopicFormat             = UrlPath + "/non-persistent/%s/%s/%s/internalStats"
+	UrlNonPersistentGetInternalStatsForPartitionedTopicFormat  = UrlPath + "/non-persistent/%s/%s/%s/partitioned-internalStats"
+	UrlNonPersistentGetStatsForTopicFormat                     = UrlPath + "/non-persistent/%s/%s/%s/stats"
+	UrlNonPersistentGetStatsForPartitionedTopicFormat          = UrlPath + "/non-persistent/%s/%s/%s/partitioned-stats"
 )

@@ -29,6 +29,7 @@ type PersistentTopics interface {
 	TopicBacklog
 	TopicMessageTTL
 	TopicCompaction
+	TopicStats
 }
 
 func (p *PersistentTopicsImpl) GetLastMessageId(tenant string, namespace string, topic string) (*MessageId, error) {
@@ -48,6 +49,42 @@ func (p *PersistentTopicsImpl) GetLastMessageId(tenant string, namespace string,
 type PersistentTopicsImpl struct {
 	cli HttpClient
 	options
+}
+
+func (p *PersistentTopicsImpl) GetStats(tenant, namespace, topic string) (*TopicStatistics, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *PersistentTopicsImpl) GetPartitionedStats(tenant, namespace, topic string) ([]*TopicStatistics, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *PersistentTopicsImpl) GetStatsInternal(tenant, namespace, topic string) (*TopicInternalStats, error) {
+	resp, err := p.cli.Get(fmt.Sprintf(UrlPersistentGetInternalStatsForTopicFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(TopicInternalStats)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func (p *PersistentTopicsImpl) GetPartitionedStatsInternal(tenant, namespace, topic string) (*PartitionedTopicInternalStats, error) {
+	resp, err := p.cli.Get(fmt.Sprintf(UrlPersistentGetInternalStatsForPartitionedTopicFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(PartitionedTopicInternalStats)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 func (p *PersistentTopicsImpl) CreateMissedPartitions(tenant string, namespace string, topic string) error {

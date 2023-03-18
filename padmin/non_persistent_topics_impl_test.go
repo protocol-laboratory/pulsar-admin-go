@@ -292,3 +292,49 @@ func TestNonPersistentTopicsImpl_GetLastMessageId(t *testing.T) {
 	_, err = admin.NonPersistentTopics.GetLastMessageId(testTenant, testNs, testTopic+"-partition-0")
 	require.Error(t, err)
 }
+
+func TestNonPersistentTopicsImpl_GetStatsInternalForTopic(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	testTopic := RandStr(8)
+	err = admin.NonPersistentTopics.CreateNonPartitioned(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	stats, err := admin.NonPersistentTopics.GetStatsInternal(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	t.Logf("get stats: %+v", stats)
+}
+
+func TestNonPersistentTopicsImpl_GetStatsInternalForPartitionTopic(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	testTopic := RandStr(8)
+	err = admin.NonPersistentTopics.CreateNonPartitioned(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	stats, err := admin.NonPersistentTopics.GetStatsInternal(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	t.Logf("get stats: %+v", stats)
+}

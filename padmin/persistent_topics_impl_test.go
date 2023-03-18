@@ -311,3 +311,63 @@ func TestPersistentTopicsImpl_GetLastMessageId(t *testing.T) {
 	require.Nil(t, err)
 	require.Greater(t, msg.LedgerId, int64(0))
 }
+
+func TestPersistentTopicsImpl_GetStatsInternalForPartitionTopic(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	testNs := RandStr(8)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	namespaces, err := admin.Namespaces.List(testTenant)
+	require.Nil(t, err)
+	assert.Contains(t, namespaces, fmt.Sprintf("%s/%s", testTenant, testNs))
+	testTopic := RandStr(8)
+	err = admin.PersistentTopics.CreatePartitioned(testTenant, testNs, testTopic, 2)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	stats, err := admin.PersistentTopics.GetPartitionedStatsInternal(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	require.EqualValues(t, 2, stats.Metadata.Partitions)
+	t.Logf("get stats: %+v", stats)
+}
+
+func TestPersistentTopicsImpl_GetStatsInternalForTopic(t *testing.T) {
+	broker := startTestBroker(t)
+	defer broker.Close()
+	admin := NewTestPulsarAdmin(t, broker.webPort)
+	testTenant := RandStr(8)
+	testNs := RandStr(8)
+	testTopic := RandStr(8)
+	err := admin.Tenants.Create(testTenant, TenantInfo{
+		AllowedClusters: []string{"standalone"},
+	})
+	require.Nil(t, err)
+	err = admin.Namespaces.Create(testTenant, testNs)
+	require.Nil(t, err)
+	err = admin.PersistentTopics.CreateNonPartitioned(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	topicList, err := admin.PersistentTopics.ListNonPartitioned(testTenant, testNs)
+	require.Nil(t, err)
+	if len(topicList) != 1 {
+		t.Fatal("topic list should have one topic")
+	}
+	if topicList[0] != fmt.Sprintf("persistent://%s/%s/%s", testTenant, testNs, testTopic) {
+		t.Fatal("topic name should be equal")
+	}
+	stats, err := admin.PersistentTopics.GetStatsInternal(testTenant, testNs, testTopic)
+	require.Nil(t, err)
+	t.Logf("get stats: %+v", stats)
+}
