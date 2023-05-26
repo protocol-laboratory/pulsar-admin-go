@@ -52,13 +52,30 @@ type PersistentTopicsImpl struct {
 }
 
 func (p *PersistentTopicsImpl) GetStats(tenant, namespace, topic string) (*TopicStatistics, error) {
-	//TODO implement me
-	panic("implement me")
+	resp, err := p.cli.Get(fmt.Sprintf(UrlPersistentGetStatsForTopicFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(TopicStatistics)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
-func (p *PersistentTopicsImpl) GetPartitionedStats(tenant, namespace, topic string) ([]*TopicStatistics, error) {
-	//TODO implement me
-	panic("implement me")
+func (p *PersistentTopicsImpl) GetPartitionedStats(tenant, namespace, topic string) (*TopicStatistics, error) {
+	resp, err := p.cli.Get(fmt.Sprintf(UrlPersistentGetStatsForPartitionedTopicFormat, tenant, namespace, topic))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var body = new(TopicStatistics)
+	if err := EasyReader(resp, body); err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
 func (p *PersistentTopicsImpl) GetStatsInternal(tenant, namespace, topic string) (*TopicInternalStats, error) {
