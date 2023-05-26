@@ -83,7 +83,7 @@ type TopicStatistics struct {
 	OngoingTxnCount                                  uint64                       `json:"ongoingTxnCount,omitempty"`
 	AbortedTxnCount                                  uint64                       `json:"abortedTxnCount,omitempty"`
 	CommittedTxnCount                                uint64                       `json:"committedTxnCount,omitempty"`
-	Publishers                                       []string                     `json:"publishers,omitempty"`
+	Publishers                                       []Publisher                  `json:"publishers,omitempty"`
 	WaitingPublishers                                uint64                       `json:"waitingPublishers,omitempty"`
 	Subscriptions                                    map[string]SubscriptionStats `json:"subscriptions,omitempty"`
 	Replication                                      map[string]string            `json:"replication,omitempty"`
@@ -124,4 +124,7 @@ type Compaction struct {
 type SubscriptionStats struct {
 	LastConsumedFlowTimestamp uint64 `json:"lastConsumedFlowTimestamp,omitempty"`
 	MsgBacklog                int    `json:"msgBacklog"`
+}
+
+type Publisher struct {
 }
