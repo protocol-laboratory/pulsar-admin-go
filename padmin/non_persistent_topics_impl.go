@@ -111,7 +111,7 @@ func (n *NonPersistentTopicsImpl) GetStats(tenant string, namespace string, topi
 	panic("implement me")
 }
 
-func (n *NonPersistentTopicsImpl) GetPartitionedStats(tenant string, namespace string, topic string) ([]*TopicStatistics, error) {
+func (n *NonPersistentTopicsImpl) GetPartitionedStats(tenant string, namespace string, topic string) (*TopicStatistics, error) {
 	//TODO implement me
 	panic("implement me")
 }
