@@ -66,31 +66,31 @@ type TopicStatistics struct {
 	MsgThroughputIn                                  float64                      `json:"msgThroughputIn,omitempty"`
 	MsgRateOut                                       float64                      `json:"msgRateOut,omitempty"`
 	MsgThroughputOut                                 float64                      `json:"msgThroughputOut,omitempty"`
-	BytesInCounter                                   uint64                       `json:"bytesInCounter,omitempty"`
-	MsgInCounter                                     uint64                       `json:"msgInCounter,omitempty"`
-	BytesOutCounter                                  uint64                       `json:"bytesOutCounter,omitempty"`
-	MsgOutCounter                                    uint64                       `json:"msgOutCounter,omitempty"`
+	BytesInCounter                                   int64                        `json:"bytesInCounter,omitempty"`
+	MsgInCounter                                     int64                        `json:"msgInCounter,omitempty"`
+	BytesOutCounter                                  int64                        `json:"bytesOutCounter,omitempty"`
+	MsgOutCounter                                    int64                        `json:"msgOutCounter,omitempty"`
 	AverageMsgSize                                   float64                      `json:"averageMsgSize,omitempty"`
 	MsgChunkPublished                                bool                         `json:"msgChunkPublished,omitempty"`
-	StorageSize                                      uint64                       `json:"storageSize,omitempty"`
-	BacklogSize                                      uint64                       `json:"backlogSize,omitempty"`
-	PublishRateLimitedTimes                          uint64                       `json:"publishRateLimitedTimes,omitempty"`
-	EarliestMsgPublishTimeInBacklogs                 uint64                       `json:"earliestMsgPublishTimeInBacklogs,omitempty"`
-	OffloadedStorageSize                             uint64                       `json:"offloadedStorageSize,omitempty"`
-	LastOffloadLedgerId                              uint64                       `json:"lastOffloadLedgerId,omitempty"`
-	LastOffloadSuccessTimeStamp                      uint64                       `json:"lastOffloadSuccessTimeStamp,omitempty"`
-	LastOffloadFailureTimeStamp                      uint64                       `json:"lastOffloadFailureTimeStamp,omitempty"`
-	OngoingTxnCount                                  uint64                       `json:"ongoingTxnCount,omitempty"`
-	AbortedTxnCount                                  uint64                       `json:"abortedTxnCount,omitempty"`
-	CommittedTxnCount                                uint64                       `json:"committedTxnCount,omitempty"`
+	StorageSize                                      int64                        `json:"storageSize,omitempty"`
+	BacklogSize                                      int64                        `json:"backlogSize,omitempty"`
+	PublishRateLimitedTimes                          int64                        `json:"publishRateLimitedTimes,omitempty"`
+	EarliestMsgPublishTimeInBacklogs                 int64                        `json:"earliestMsgPublishTimeInBacklogs,omitempty"`
+	OffloadedStorageSize                             int64                        `json:"offloadedStorageSize,omitempty"`
+	LastOffloadLedgerId                              int64                        `json:"lastOffloadLedgerId,omitempty"`
+	LastOffloadSuccessTimeStamp                      int64                        `json:"lastOffloadSuccessTimeStamp,omitempty"`
+	LastOffloadFailureTimeStamp                      int64                        `json:"lastOffloadFailureTimeStamp,omitempty"`
+	OngoingTxnCount                                  int64                        `json:"ongoingTxnCount,omitempty"`
+	AbortedTxnCount                                  int64                        `json:"abortedTxnCount,omitempty"`
+	CommittedTxnCount                                int64                        `json:"committedTxnCount,omitempty"`
 	Publishers                                       []Publisher                  `json:"publishers,omitempty"`
-	WaitingPublishers                                uint64                       `json:"waitingPublishers,omitempty"`
+	WaitingPublishers                                int64                        `json:"waitingPublishers,omitempty"`
 	Subscriptions                                    map[string]SubscriptionStats `json:"subscriptions,omitempty"`
 	Replication                                      map[string]string            `json:"replication,omitempty"`
 	DeduplicationStatus                              string                       `json:"deduplicationStatus,omitempty"`
-	NonContiguousDeletedMessagesRanges               uint64                       `json:"nonContiguousDeletedMessagesRanges,omitempty"`
-	NonContiguousDeletedMessagesRangesSerializedSize uint64                       `json:"nonContiguousDeletedMessagesRangesSerializedSize,omitempty"`
-	DelayedMessageIndexSizeInBytes                   uint64                       `json:"delayedMessageIndexSizeInBytes,omitempty"`
+	NonContiguousDeletedMessagesRanges               int64                        `json:"nonContiguousDeletedMessagesRanges,omitempty"`
+	NonContiguousDeletedMessagesRangesSerializedSize int64                        `json:"nonContiguousDeletedMessagesRangesSerializedSize,omitempty"`
+	DelayedMessageIndexSizeInBytes                   int64                        `json:"delayedMessageIndexSizeInBytes,omitempty"`
 	Compaction                                       Compaction                   `json:"compaction"`
 	OwnerBroker                                      string                       `json:"ownerBroker,omitempty"`
 }
@@ -115,15 +115,15 @@ type CursorStats struct {
 }
 
 type Compaction struct {
-	LastCompactionRemovedEventCount   uint64 `json:"lastCompactionRemovedEventCount,omitempty"`
-	LastCompactionSucceedTimestamp    uint64 `json:"lastCompactionSucceedTimestamp,omitempty"`
-	LastCompactionFailedTimestamp     uint64 `json:"lastCompactionFailedTimestamp,omitempty"`
-	LastCompactionDurationTimeInMills uint64 `json:"lastCompactionDurationTimeInMills,omitempty"`
+	LastCompactionRemovedEventCount   int64 `json:"lastCompactionRemovedEventCount,omitempty"`
+	LastCompactionSucceedTimestamp    int64 `json:"lastCompactionSucceedTimestamp,omitempty"`
+	LastCompactionFailedTimestamp     int64 `json:"lastCompactionFailedTimestamp,omitempty"`
+	LastCompactionDurationTimeInMills int64 `json:"lastCompactionDurationTimeInMills,omitempty"`
 }
 
 type SubscriptionStats struct {
-	LastConsumedFlowTimestamp uint64 `json:"lastConsumedFlowTimestamp,omitempty"`
-	MsgBacklog                int    `json:"msgBacklog"`
+	LastConsumedFlowTimestamp int64 `json:"lastConsumedFlowTimestamp,omitempty"`
+	MsgBacklog                int   `json:"msgBacklog"`
 }
 
 type Publisher struct {
